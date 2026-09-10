@@ -1,0 +1,2145 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baseline</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#EDEFEE" id="meta-theme">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Baseline">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root, [data-theme="light"]{
+  --paper:#EDEFEE; --surface:#FFFFFF; --ink:#141A1C; --muted:#6D767C;
+  --line:#DBE0DE; --line-strong:#C3CAC7;
+  --signal:#15624B; --warn:#A65C1C; --behind:#8E2F2F;
+  --signal-soft:#E4EEEA; --warn-soft:#F6EBDF;
+  --shadow:rgba(20,26,28,.22);
+}
+[data-theme="dark"]{
+  --paper:#101416; --surface:#191F22; --ink:#E7EDEA; --muted:#8B979C;
+  --line:#242C30; --line-strong:#3A454A;
+  --signal:#46A583; --warn:#D3924A; --behind:#D06B62;
+  --signal-soft:#17322A; --warn-soft:#33261A;
+  --shadow:rgba(0,0,0,.55);
+}
+[data-theme="halloween"]{
+  --paper:#141010; --surface:#1E1817; --ink:#F2E6D4; --muted:#A08B76;
+  --line:#2B211D; --line-strong:#48342A;
+  --signal:#E4761B; --warn:#8E5CC4; --behind:#C0392B;
+  --signal-soft:#33200F; --warn-soft:#241A33;
+  --shadow:rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  transition:background .3s ease,color .3s ease;
+}
+[data-theme="halloween"] body{
+  background-image:radial-gradient(120% 60% at 50% -10%, rgba(228,118,27,.13), transparent 60%);
+  background-attachment:fixed;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif}
+
+.shell{max-width:940px;margin:0 auto;padding:0 20px 130px}
+.masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:26px 0 16px;flex-wrap:wrap}
+.wordmark{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:27px;letter-spacing:-.015em;margin:0;display:flex;align-items:center;gap:9px}
+.pumpkin{display:none;font-size:20px}
+[data-theme="halloween"] .pumpkin{display:inline}
+.datestamp{color:var(--muted);font-size:13px}
+.masthead-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ghost{background:none;border:1px solid var(--line-strong);padding:5px 11px;border-radius:999px;font-size:12.5px;color:var(--muted);transition:border-color .18s,color .18s}
+.ghost:hover{border-color:var(--ink);color:var(--ink)}
+select.ghost{padding-right:22px}
+
+.tabs{position:relative;display:flex;gap:24px;border-bottom:1px solid var(--line-strong);margin-bottom:22px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;padding:0 0 11px;font-size:14.5px;color:var(--muted);white-space:nowrap;transition:color .2s}
+.tab[aria-selected="true"]{color:var(--ink)}
+.tab-underline{position:absolute;bottom:-1px;height:2px;background:var(--ink);transition:transform .34s cubic-bezier(.2,.7,.3,1),width .34s cubic-bezier(.2,.7,.3,1)}
+.panel{display:none;animation:enter .3s cubic-bezier(.2,.7,.3,1)}
+.panel.is-active{display:block}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.group-label{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:15px;color:var(--muted);margin:26px 0 9px;font-style:italic}
+.group-label:first-child{margin-top:4px}
+.row{
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin-bottom:8px;
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  transition:border-color .2s;
+}
+.row:hover{border-color:var(--line-strong)}
+.row.is-done{border-color:var(--signal);background:var(--signal-soft)}
+.row.is-group{border-style:solid;background:var(--surface)}
+.row.is-child{margin-left:24px;border-left:3px solid var(--line-strong)}
+.row-name{font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row.is-group .row-name{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:17px}
+.row-sub{color:var(--muted);font-size:12.5px;margin-top:2px;font-variant-numeric:tabular-nums}
+.pip{width:7px;height:7px;border-radius:50%;flex:none}
+.row-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+.check{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line-strong);background:var(--surface);display:grid;place-items:center;transition:background .22s,border-color .22s,transform .22s}
+.check svg{width:17px;height:17px;stroke:var(--line-strong);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:stroke .22s}
+.check[aria-pressed="true"]{background:var(--signal);border-color:var(--signal)}
+.check[aria-pressed="true"] svg{stroke:var(--surface)}
+.check:active{transform:scale(.92)}
+
+.num-input{width:80px;padding:7px 9px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);text-align:right;font-variant-numeric:tabular-nums}
+.num-input:focus{border-color:var(--signal)}
+.time-input{width:104px;padding:7px 9px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface)}
+.mini{background:var(--ink);color:var(--paper);border:0;border-radius:7px;padding:8px 13px;font-size:13px;transition:opacity .18s}
+.mini:hover{opacity:.85}
+.mini.secondary{background:none;color:var(--muted);border:1px solid var(--line-strong)}
+.mini.secondary:hover{color:var(--ink);border-color:var(--ink)}
+.mini.danger{background:none;color:var(--behind);border:1px solid var(--behind)}
+.icon-btn{background:none;border:1px solid var(--line-strong);border-radius:7px;width:30px;height:30px;color:var(--muted);font-size:15px;line-height:1;display:grid;place-items:center}
+.icon-btn:hover{color:var(--ink);border-color:var(--ink)}
+
+.meter{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:9px;grid-column:1/-1}
+.meter i{display:block;height:100%;background:var(--signal);width:0;transition:width .6s cubic-bezier(.2,.7,.3,1)}
+
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px 14px;margin-bottom:12px}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.chart-picker{display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px}
+.chart-picker button{background:none;border:0;padding:4px 10px;border-radius:999px;font-size:12px;color:var(--muted);transition:background .2s,color .2s}
+.chart-picker button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+svg.plot{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+
+.insight{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line-strong);border-radius:10px;padding:14px 16px;margin-bottom:8px}
+.insight.good{border-left-color:var(--signal)}
+.insight.watch{border-left-color:var(--warn)}
+.insight.behind{border-left-color:var(--behind)}
+.insight h4{margin:0 0 3px;font-size:14.5px;font-weight:600}
+.insight p{margin:0;color:var(--muted);font-size:13.5px}
+.insight .lead{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:16px;color:var(--ink);margin-bottom:4px}
+
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-top:26px;overflow:hidden}
+.chat-log{padding:16px;max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.bubble{max-width:82%;padding:10px 13px;border-radius:12px;font-size:14px;white-space:pre-wrap;animation:enter .25s}
+.bubble.me{align-self:flex-end;background:var(--ink);color:var(--paper);border-bottom-right-radius:4px}
+.bubble.ai{align-self:flex-start;background:var(--paper);border-bottom-left-radius:4px}
+.chat-form{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line)}
+.chat-form input{flex:1;padding:10px 12px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface)}
+
+/* ---- calendar ---- */
+.cal-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.cal-title{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:21px;min-width:190px;text-align:center}
+.cal-nav{display:flex;align-items:center;gap:8px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-dow{font-size:11px;color:var(--muted);text-align:center;padding-bottom:4px}
+.cal-cell{
+  aspect-ratio:1/1;border:1px solid var(--line);border-radius:8px;background:var(--surface);
+  display:flex;flex-direction:column;justify-content:space-between;padding:6px 7px;
+  font-variant-numeric:tabular-nums;transition:transform .16s,border-color .16s;position:relative;
+}
+.cal-cell:hover{transform:translateY(-2px);border-color:var(--line-strong)}
+.cal-cell.blank{border:0;background:none;pointer-events:none}
+.cal-cell.today{border-color:var(--ink);border-width:2px}
+.cal-cell.sel{outline:2px solid var(--ink);outline-offset:1px}
+.cal-cell.future{opacity:.4}
+.cal-num{font-size:12.5px;line-height:1;text-align:left}
+.cal-dots{display:flex;gap:2px;flex-wrap:wrap}
+.cal-dot{width:4px;height:4px;border-radius:50%}
+.scale{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-top:14px}
+.scale i{width:22px;height:10px;border-radius:3px;display:block}
+
+.day-detail{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;margin-top:18px;animation:enter .25s}
+.day-detail h3{margin:0 0 2px;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:20px;font-weight:400}
+.day-detail .row-sub{margin-bottom:14px}
+.edit-line{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.edit-line:first-of-type{border-top:0}
+.ledger-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13.5px;color:var(--muted)}
+.ledger-item b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+
+/* ---- badges ---- */
+.badge-head{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.badge-head h3{margin:0;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:22px;font-weight:400}
+.badge-head .meter{margin-top:12px}
+.filters{display:flex;gap:6px;margin:14px 0 4px;flex-wrap:wrap}
+.filters button{background:none;border:1px solid var(--line-strong);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:12.5px;transition:background .18s,color .18s,border-color .18s}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px}
+.badge{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 12px 12px;text-align:center;transition:transform .18s,border-color .18s}
+.badge.earned{border-color:var(--line-strong)}
+.badge:hover{transform:translateY(-2px)}
+.badge-svg{width:56px;height:56px;display:block;margin:0 auto 8px}
+.badge.earned .badge-svg{animation:pop .4s cubic-bezier(.3,1.4,.5,1)}
+@keyframes pop{0%{transform:scale(.7)}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+.badge b{display:block;font-size:13.5px;font-weight:600;line-height:1.3}
+.badge.locked b{color:var(--muted)}
+.badge p{margin:4px 0 0;font-size:11.5px;color:var(--muted);line-height:1.35}
+.badge .bar{height:3px;background:var(--line);border-radius:2px;margin-top:9px;overflow:hidden}
+.badge .bar i{display:block;height:100%;border-radius:2px}
+.badge .cnt{font-size:11px;color:var(--muted);margin-top:4px;display:block;font-variant-numeric:tabular-nums}
+.badge .cnt.done{color:var(--signal)}
+
+/* ---- settings ---- */
+.set-group{border-top:1px solid var(--line);padding:16px 0 4px}
+.set-group:first-of-type{border-top:0;padding-top:0}
+.set-group h4{margin:0 0 3px;font-size:14px;font-weight:600}
+.set-group>p{margin:0 0 12px;font-size:12.5px;color:var(--muted)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0}
+.toggle-row span{font-size:14px}
+.toggle-row small{display:block;color:var(--muted);font-size:12px}
+.sw{width:44px;height:26px;border-radius:999px;border:1px solid var(--line-strong);background:var(--paper);position:relative;flex:none;transition:background .22s,border-color .22s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:transform .22s,background .22s}
+.sw[aria-pressed="true"]{background:var(--signal);border-color:var(--signal)}
+.sw[aria-pressed="true"]::after{transform:translateX(18px);background:#fff}
+.theme-chips{display:flex;gap:6px;flex-wrap:wrap}
+.theme-chips button{border:1px solid var(--line-strong);background:none;color:var(--muted);border-radius:8px;padding:7px 12px;font-size:13px;display:flex;align-items:center;gap:7px}
+.theme-chips button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink)}
+.theme-chips i{width:12px;height:12px;border-radius:3px;display:block;border:1px solid rgba(128,128,128,.35)}
+.sync-state{font-size:12.5px;color:var(--muted);margin-top:10px}
+.sync-state b{color:var(--ink);font-weight:600}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+
+/* ---- unlock celebration ---- */
+#unlock{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;background:rgba(8,10,11,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#unlock.is-open{display:flex}
+.uk-card{text-align:center;padding:30px 26px;max-width:330px}
+.uk-medal{position:relative;width:150px;height:150px;margin:0 auto 20px}
+.uk-medal svg{width:150px!important;height:150px!important;position:relative;z-index:2;animation:medal .8s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes medal{0%{transform:scale(.3) rotate(-25deg);opacity:0}60%{transform:scale(1.12) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.uk-rays{position:absolute;inset:-42px;z-index:1;animation:rays 1.1s ease-out both}
+@keyframes rays{0%{transform:scale(.4) rotate(0);opacity:0}35%{opacity:.9}100%{transform:scale(1.15) rotate(28deg);opacity:0}}
+.uk-ring{position:absolute;inset:0;border-radius:50%;z-index:1;animation:ring 1s ease-out .12s both}
+@keyframes ring{0%{transform:scale(.6);opacity:.85}100%{transform:scale(1.9);opacity:0}}
+.uk-tier{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:7px;animation:up .5s ease-out .3s both}
+.uk-name{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:29px;line-height:1.15;color:#fff;margin:0 0 8px;animation:up .5s ease-out .38s both}
+.uk-desc{font-size:14px;color:rgba(255,255,255,.68);margin:0 0 22px;animation:up .5s ease-out .46s both}
+.uk-more{font-size:12.5px;color:rgba(255,255,255,.5);animation:up .5s ease-out .6s both}
+.uk-btn{background:#fff;color:#141A1C;border:0;border-radius:999px;padding:11px 26px;font-size:14px;animation:up .5s ease-out .54s both}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes spark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+.uk-spark{position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;z-index:3;animation:spark .9s ease-out both}
+
+/* ---- digest ---- */
+.digest{background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:18px;margin-bottom:14px}
+.digest .big{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.digest .delta{font-size:13px;margin-left:8px}
+.digest .delta.up{color:var(--signal)}
+.digest .delta.down{color:var(--behind)}
+.digest ul{margin:14px 0 0;padding:0;list-style:none}
+.digest li{font-size:13.5px;padding:7px 0 7px 14px;border-left:2px solid var(--line);color:var(--muted)}
+.digest li b{color:var(--ink);font-weight:600}
+.digest li.act{border-left-color:var(--warn)}
+.digest li.win{border-left-color:var(--signal)}
+.spark-row{display:flex;gap:3px;align-items:flex-end;height:34px;margin-top:14px}
+.spark-row i{flex:1;background:var(--signal);border-radius:2px;min-height:2px;opacity:.85}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.scrim.is-open{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--surface);width:100%;max-width:530px;max-height:92vh;overflow-y:auto;border-radius:16px 16px 0 0;padding:22px 22px 26px;animation:rise .32s cubic-bezier(.2,.7,.3,1)}
+@keyframes rise{from{transform:translateY(28px)}to{transform:none}}
+@media(min-width:640px){.scrim{align-items:center}.sheet{border-radius:14px;animation:enter .28s}}
+.sheet h3{margin:0 0 6px;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:21px;font-weight:400}
+.sheet-sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface)}
+.field input:focus,.field select:focus{border-color:var(--signal)}
+.field-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.swatches{display:flex;gap:7px;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;transition:transform .18s}
+.swatch[aria-pressed="true"]{border-color:var(--ink);transform:scale(1.12)}
+.sheet-actions{display:flex;gap:8px;justify-content:space-between;margin-top:20px;flex-wrap:wrap}
+.hist-line{display:grid;grid-template-columns:88px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
+.hist-line span{color:var(--muted)}
+.hist-wrap{max-height:300px;overflow-y:auto;margin-top:6px}
+
+.empty{border:1px dashed var(--line-strong);border-radius:10px;padding:26px 20px;text-align:center;color:var(--muted)}
+.empty p{margin:0 0 14px}
+.templates{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.fab{position:fixed;right:max(20px,calc(50% - 450px));bottom:24px;z-index:20;background:var(--ink);color:var(--paper);border:0;border-radius:999px;padding:13px 20px;font-size:14px;box-shadow:0 6px 20px var(--shadow);transition:transform .2s}
+.fab:hover{transform:translateY(-2px)}
+.toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,14px);z-index:60;background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;font-size:13.5px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.toast.is-shown{opacity:1;transform:translate(-50%,0)}
+.note{font-size:12.5px;color:var(--muted);padding:10px 14px;background:var(--warn-soft);border-radius:8px;margin-top:12px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="shell">
+  <header class="masthead">
+    <div>
+      <h1 class="wordmark"><span class="pumpkin">🎃</span>Baseline</h1>
+      <div class="datestamp" id="datestamp"></div>
+    </div>
+    <div class="masthead-tools">
+      <button class="ghost" id="btn-sync" title="Sync now">Sync</button>
+      <button class="ghost" id="btn-settings">Settings</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="track" aria-selected="true">Trackers</button>
+    <button class="tab" role="tab" data-tab="days" aria-selected="false">Days</button>
+    <button class="tab" role="tab" data-tab="badges" aria-selected="false">Badges</button>
+    <button class="tab" role="tab" data-tab="progress" aria-selected="false">Progress</button>
+    <button class="tab" role="tab" data-tab="insights" aria-selected="false">Updates</button>
+    <span class="tab-underline" id="underline"></span>
+  </nav>
+
+  <main id="swipe-area">
+    <section class="panel is-active" data-panel="track" id="panel-track"></section>
+    <section class="panel" data-panel="days" id="panel-days"></section>
+    <section class="panel" data-panel="badges" id="panel-badges"></section>
+    <section class="panel" data-panel="progress" id="panel-progress"></section>
+    <section class="panel" data-panel="insights" id="panel-insights"></section>
+  </main>
+</div>
+
+<button class="fab" id="btn-new">New tracker</button>
+<div class="toast" id="toast"></div>
+<input type="file" id="file-input" accept="application/json" hidden>
+<div id="unlock"><div class="uk-card" id="uk-card"></div></div>
+<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div>
+
+<script>
+"use strict";
+
+/* ===== 1. STORAGE ===== */
+const KEY = "baseline:v2";
+const Store = (() => {
+  let mode = "memory", mem = null;
+  return {
+    async init(){
+      if (typeof window !== "undefined" && window.storage) {
+        try { await window.storage.list(""); mode = "claude"; return; } catch(e){}
+      }
+      try { localStorage.setItem("__t","1"); localStorage.removeItem("__t"); mode = "local"; }
+      catch(e){ mode = "memory"; }
+    },
+    async load(){
+      try {
+        if (mode === "claude"){ const r = await window.storage.get(KEY); return r ? JSON.parse(r.value) : null; }
+        if (mode === "local"){ const v = localStorage.getItem(KEY) || localStorage.getItem("baseline:v1"); return v ? JSON.parse(v) : null; }
+        return mem;
+      } catch(e){ return null; }
+    },
+    async save(d){
+      try {
+        if (mode === "claude"){ await window.storage.set(KEY, JSON.stringify(d)); return true; }
+        if (mode === "local"){ localStorage.setItem(KEY, JSON.stringify(d)); return true; }
+        mem = d; return true;
+      } catch(e){ return false; }
+    }
+  };
+})();
+
+/* ===== 2. DATES ===== */
+const iso = d => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`; };
+const today = () => iso(new Date());
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (s,n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const daysBetween = (a,b) => Math.round((parse(b) - parse(a)) / 86400000);
+const monthKey = s => s.slice(0,7);
+function weekStart(s){ const d = parse(s); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return iso(d); }
+function lastNDays(n){ const o=[]; for(let i=n-1;i>=0;i--) o.push(addDays(today(),-i)); return o; }
+const prettyDate = s => parse(s).toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"});
+const shortDate  = s => parse(s).toLocaleDateString(undefined,{month:"short", day:"numeric"});
+const monthName  = k => new Date(+k.slice(0,4), +k.slice(5,7)-1, 1).toLocaleDateString(undefined,{month:"long", year:"numeric"});
+
+/* ===== 3. TYPES ===== */
+const TYPES = {
+  habit:   { label:"Daily habits",    unitDefault:"",     periodDefault:"week",  charts:["progress","bar","pie","line"] },
+  count:   { label:"Daily counts",    unitDefault:"reps", periodDefault:"day",   charts:["line","bar","progress","pie"] },
+  hours:   { label:"Hours logged",    unitDefault:"h",    periodDefault:"week",  charts:["bar","line","progress","pie"] },
+  savings: { label:"Savings goals",   unitDefault:"$",    periodDefault:"total", charts:["progress","line","bar","pie"] },
+  sleep:   { label:"Sleep",           unitDefault:"h",    periodDefault:"day",   charts:["line","bar","progress","pie"] },
+  ledger:  { label:"Income & bills",  unitDefault:"$",    periodDefault:"month", charts:["bar","pie","line","progress"] }
+};
+const ORDER = ["habit","count","hours","sleep","savings","ledger"];
+const COLORS = ["#15624B","#2A6FA8","#B23A3A","#C4761B","#6B4C9A","#1F8F86","#8C7A2E","#4A5A64"];
+const CHART_LABEL = { line:"Line", bar:"Bar", pie:"Split", progress:"Progress" };
+const MONEY_TYPES = ["savings","ledger"];
+
+/* ===== 4. STATE ===== */
+const DEFAULT_SETTINGS = {
+  theme:"light",
+  notifyOn:false, notifyTime:"20:00", lastNotify:null,
+  apiKey:"", sbUrl:"", sbAnon:"", sbEmail:"", sbToken:"", sbRefresh:"", lastSync:null
+};
+let S = { trackers:[], entries:[], chat:[], unlocked:null, tombstones:[], updatedAt:0, settings:{...DEFAULT_SETTINGS} };
+const uid = () => Math.random().toString(36).slice(2,9);
+let saveTimer;
+function persist(){
+  S.updatedAt = Date.now();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ Store.save(S); queueSync(); }, 220);
+}
+function tomb(kind, id){
+  S.tombstones = S.tombstones || [];
+  S.tombstones.push({ kind, id, at: Date.now() });
+  if (S.tombstones.length > 800) S.tombstones = S.tombstones.slice(-800);
+}
+
+const byId = id => S.trackers.find(t=>t.id===id);
+const childrenOf = id => S.trackers.filter(t=>t.parentId===id && !t.archived);
+const isGroup = t => childrenOf(t.id).length > 0;
+function familyIds(id){
+  const out = [id];
+  childrenOf(id).forEach(c => out.push(...familyIds(c.id)));
+  return out;
+}
+const entriesFor = id => {
+  const fam = familyIds(id);
+  return S.entries.filter(e => fam.includes(e.trackerId)).sort((a,b)=> a.date < b.date ? -1 : 1);
+};
+const ownEntryOn = (id,d) => S.entries.find(e => e.trackerId === id && e.date === d);
+function aggValueOn(id, d){
+  return familyIds(id).reduce((s,fid)=>{
+    return s + S.entries.filter(e=>e.trackerId===fid && e.date===d)
+      .reduce((a,e)=> a + (e.kind==="out" ? -e.value : e.value), 0);
+  }, 0);
+}
+
+function setEntry(id, date, value, extra){
+  let e = ownEntryOn(id, date);
+  if (!e){ e = { id:uid(), trackerId:id, date, value:0 }; S.entries.push(e); }
+  e.value = value;
+  if (extra) Object.assign(e, extra);
+  persist();
+}
+function removeEntry(id, date){
+  const i = S.entries.findIndex(e => e.trackerId===id && e.date===date);
+  if (i > -1){ tomb("entry", S.entries[i].id); S.entries.splice(i,1); persist(); }
+}
+function removeEntryById(eid){
+  const i = S.entries.findIndex(e => e.id === eid);
+  if (i > -1){ tomb("entry", eid); S.entries.splice(i,1); persist(); }
+}
+function addLedgerEntry(id, kind, amount, date, label){
+  S.entries.push({ id:uid(), trackerId:id, date:date||today(), value:Math.abs(amount), kind, label:label||"" });
+  persist();
+}
+function deleteTracker(id){
+  const fam = familyIds(id);
+  fam.forEach(f => tomb("tracker", f));
+  S.entries.filter(e=>fam.includes(e.trackerId)).forEach(e=>tomb("entry", e.id));
+  S.trackers = S.trackers.filter(t => !fam.includes(t.id));
+  S.entries  = S.entries.filter(e => !fam.includes(e.trackerId));
+  persist();
+}
+
+/* effective targets roll up from children when the parent leaves them blank */
+function effTarget(t){
+  if (t.target) return t.target;
+  const kids = childrenOf(t.id);
+  if (!kids.length) return null;
+  const s = kids.reduce((a,k)=> a + (effTarget(k)||0), 0);
+  return s || null;
+}
+function effGoal(t){
+  if (t.goalAmount) return t.goalAmount;
+  const kids = childrenOf(t.id);
+  if (!kids.length) return null;
+  const s = kids.reduce((a,k)=> a + (effGoal(k)||0), 0);
+  return s || null;
+}
+
+/* ===== 5. STATS ===== */
+function stats(t){
+  const es = entriesFor(t.id);
+  const out = { entries:es, count:es.length, target:effTarget(t), goal:effGoal(t) };
+
+  if (t.type === "savings"){
+    out.saved = es.reduce((s,e)=>s+e.value,0);
+    out.pct = out.goal ? Math.min(1, out.saved/out.goal) : 0;
+    out.remaining = Math.max(0, (out.goal||0) - out.saved);
+    const first = es[0] ? es[0].date : today();
+    const weeks = Math.max(1, daysBetween(first, today())/7);
+    out.perWeek = out.saved/weeks;
+    out.weeksLeft = out.perWeek > 0 ? out.remaining/out.perWeek : Infinity;
+    if (t.deadline){
+      out.daysLeft = daysBetween(today(), t.deadline);
+      out.neededPerWeek = out.daysLeft > 0 ? out.remaining/(out.daysLeft/7) : out.remaining;
+    }
+    return out;
+  }
+
+  if (t.type === "ledger"){
+    const m = {};
+    es.forEach(e => { const k = monthKey(e.date); m[k] = m[k] || {in:0,out:0}; m[k][e.kind==="out"?"out":"in"] += e.value; });
+    const keys = Object.keys(m).sort();
+    out.months = m; out.monthKeys = keys;
+    const cur = m[monthKey(today())] || {in:0,out:0};
+    out.thisIn = cur.in; out.thisOut = cur.out; out.thisNet = cur.in - cur.out;
+    const closed = keys.filter(k=>k!==monthKey(today()));
+    out.avgOut = closed.length ? closed.reduce((s,k)=>s+m[k].out,0)/closed.length : cur.out;
+    out.avgIn  = closed.length ? closed.reduce((s,k)=>s+m[k].in,0)/closed.length  : cur.in;
+    return out;
+  }
+
+  const win = lastNDays(30);
+  out.series = win.map(d => ({ date:d, value: aggValueOn(t.id, d) }));
+  const last7 = out.series.slice(-7);
+  out.week7 = last7.reduce((s,p)=>s+p.value,0);
+  out.avg7 = out.week7/7;
+  out.doneToday = aggValueOn(t.id, today()) > 0;
+
+  if (t.type === "habit"){
+    out.hits30 = out.series.filter(p=>p.value>0).length;
+    out.hitsWeek = last7.filter(p=>p.value>0).length;
+    let streak = 0;
+    for (let i=0;;i++){
+      const v = aggValueOn(t.id, addDays(today(),-i));
+      if (v > 0) streak++;
+      else if (i === 0) continue;
+      else break;
+      if (i > 400) break;
+    }
+    out.streak = streak;
+    out.targetDays = out.target || 7;
+    out.isGroup = isGroup(t);
+    out.sessions = out.week7;                       // counts each subsection separately
+    out.scored = out.isGroup ? out.sessions : out.hitsWeek;
+    out.unitWord = out.isGroup ? "sessions" : "days";
+    out.pct = Math.min(1, out.scored/out.targetDays);
+  } else if (t.type === "sleep"){
+    const logged = last7.filter(p=>p.value>0);
+    out.avgNight = logged.length ? logged.reduce((s,p)=>s+p.value,0)/logged.length : 0;
+    out.current = aggValueOn(t.id, today());
+    out.pct = out.target ? Math.min(1, out.avgNight/out.target) : 0;
+  } else {
+    out.current = t.targetPeriod === "week" ? out.week7 : aggValueOn(t.id, today());
+    out.pct = out.target ? Math.min(1, out.current/out.target) : 0;
+  }
+  return out;
+}
+
+/* ===== 6. COLOUR HELPERS ===== */
+const hex2rgb = h => { h = h.replace("#",""); return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16)); };
+const rgb2hex = a => "#" + a.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,"0")).join("");
+const mixRgb = (a,b,t) => a.map((v,i)=> v + (b[i]-v)*t);
+const lum = a => { const c = a.map(v=>{ v/=255; return v<=.03928 ? v/12.92 : ((v+.055)/1.055)**2.4; }); return .2126*c[0]+.7152*c[1]+.0722*c[2]; };
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function themed(hex){
+  if (S.settings.theme === "light") return hex;
+  return rgb2hex(mixRgb(hex2rgb(hex), [255,255,255], .3));
+}
+function palette(){
+  return { line:cssVar("--line"), lineStrong:cssVar("--line-strong"), muted:cssVar("--muted"), ink:cssVar("--ink"), behind:cssVar("--behind"), surface:cssVar("--surface"), paper:cssVar("--paper") };
+}
+
+/* ===== 7. CHARTS ===== */
+const W = 340, H = 132, PAD = 6;
+const SERIF = "Iowan Old Style,Palatino,Georgia,serif";
+
+function chartData(t, st){
+  if (t.type === "savings"){
+    let run = 0;
+    const pts = st.entries.map(e => ({ label:shortDate(e.date), value:(run += e.value) }));
+    return pts.length ? pts : [{label:"—", value:0}];
+  }
+  if (t.type === "ledger"){
+    return st.monthKeys.slice(-8).map(k => ({ label:k.slice(5)+"/"+k.slice(2,4), value:st.months[k].in - st.months[k].out }));
+  }
+  return st.series.slice(-14).map(p => ({ label:shortDate(p.date), value:p.value }));
+}
+
+function lineChart(data, color){
+  const P = palette();
+  const vals = data.map(d=>d.value);
+  const max = Math.max(1,...vals), min = Math.min(0,...vals), span = max-min || 1;
+  const x = i => PAD + (i*(W-PAD*2))/Math.max(1,data.length-1);
+  const y = v => H - PAD - ((v-min)/span)*(H-PAD*2);
+  const pts = data.map((d,i)=>[x(i),y(d.value)]);
+  const path = pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area = path + ` L${x(data.length-1).toFixed(1)} ${H-PAD} L${PAD} ${H-PAD} Z`;
+  const grid = [0,.5,1].map(f=>`<line x1="${PAD}" x2="${W-PAD}" y1="${(PAD+f*(H-PAD*2)).toFixed(1)}" y2="${(PAD+f*(H-PAD*2)).toFixed(1)}" stroke="${P.line}" stroke-width="1"/>`).join("");
+  const dots = pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.4" fill="${color}"/>`).join("");
+  return `<svg class="plot" viewBox="0 0 ${W} ${H+18}">${grid}
+    <path d="${area}" fill="${color}" opacity=".10"/>
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}
+    <text x="${PAD}" y="${H+13}" font-size="10" fill="${P.muted}">${data[0].label}</text>
+    <text x="${W-PAD}" y="${H+13}" font-size="10" fill="${P.muted}" text-anchor="end">${data[data.length-1].label}</text></svg>`;
+}
+
+function barChart(data, color){
+  const P = palette();
+  const max = Math.max(1,...data.map(d=>Math.abs(d.value)));
+  const n = data.length, gap = 4, bw = (W-PAD*2-gap*(n-1))/n;
+  const bars = data.map((d,i)=>{
+    const h = (Math.abs(d.value)/max)*(H-PAD*2);
+    return `<rect x="${(PAD+i*(bw+gap)).toFixed(1)}" y="${(H-PAD-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1,h).toFixed(1)}" rx="2" fill="${d.value<0?P.behind:color}" opacity="${d.value===0?.18:1}"/>`;
+  }).join("");
+  const labels = data.map((d,i)=> (n<=8||i%2===0) ? `<text x="${(PAD+i*(bw+gap)+bw/2).toFixed(1)}" y="${H+13}" font-size="9" fill="${P.muted}" text-anchor="middle">${d.label}</text>` : "").join("");
+  return `<svg class="plot" viewBox="0 0 ${W} ${H+18}"><line x1="${PAD}" x2="${W-PAD}" y1="${H-PAD}" y2="${H-PAD}" stroke="${P.lineStrong}" stroke-width="1"/>${bars}${labels}</svg>`;
+}
+
+function pieChart(slices){
+  const P = palette();
+  const total = slices.reduce((s,x)=>s+Math.max(0,x.value),0) || 1;
+  const cx = 72, cy = 66, r = 54;
+  let a0 = -Math.PI/2, arcs = "";
+  slices.forEach(s=>{
+    const v = Math.max(0,s.value);
+    if (v <= 0) return;
+    const a1 = a0 + (v/total)*Math.PI*2;
+    const big = (a1-a0) > Math.PI ? 1 : 0;
+    const p0 = [cx+r*Math.cos(a0), cy+r*Math.sin(a0)], p1 = [cx+r*Math.cos(a1), cy+r*Math.sin(a1)];
+    arcs += `<path d="M${cx} ${cy} L${p0[0].toFixed(1)} ${p0[1].toFixed(1)} A${r} ${r} 0 ${big} 1 ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} Z" fill="${s.color}" stroke="${P.surface}" stroke-width="1.5"/>`;
+    a0 = a1;
+  });
+  const rows = slices.slice(0,5).map((s,i)=>`<g transform="translate(158 ${34+i*21})">
+      <rect width="9" height="9" rx="2" fill="${s.color}"/>
+      <text x="16" y="9" font-size="11.5" fill="${P.ink}">${s.label}</text>
+      <text x="${W-160}" y="9" font-size="11.5" fill="${P.muted}" text-anchor="end">${s.display ?? s.value}</text></g>`).join("");
+  return `<svg class="plot" viewBox="0 0 ${W} ${H+8}">${arcs}${rows}</svg>`;
+}
+
+function progressChart(pct, caption, color){
+  const P = palette();
+  const cx = 70, cy = 66, r = 48, c = 2*Math.PI*r;
+  const dash = Math.max(0,Math.min(1,pct))*c;
+  return `<svg class="plot" viewBox="0 0 ${W} ${H+8}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${P.line}" stroke-width="11"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy+7}" font-size="21" text-anchor="middle" fill="${P.ink}" style="font-family:${SERIF}">${Math.round(pct*100)}%</text>
+    <text x="150" y="${cy+5}" font-size="12.5" fill="${P.muted}">${caption}</text></svg>`;
+}
+
+function renderChart(t, st){
+  const kind = t.chart || TYPES[t.type].charts[0];
+  const color = themed(t.color || COLORS[0]);
+  const P = palette();
+  const money = MONEY_TYPES.includes(t.type);
+  const fm = v => money ? "$"+Math.round(v).toLocaleString() : (Math.round(v*10)/10);
+  const kids = childrenOf(t.id);
+
+  if (kind === "line") return lineChart(chartData(t,st), color);
+  if (kind === "bar")  return barChart(chartData(t,st), color);
+
+  if (kind === "pie"){
+    if (kids.length){
+      const slices = kids.map(k=>{
+        const ks = stats(k);
+        let v = 0;
+        if (k.type === "savings") v = ks.saved;
+        else if (k.type === "ledger") v = ks.thisOut;
+        else if (k.type === "habit") v = ks.hits30;
+        else v = ks.series.reduce((s,p)=>s+p.value,0);
+        return { label:k.name, value:v, display:fm(v), color:themed(k.color||COLORS[0]) };
+      });
+      return pieChart(slices);
+    }
+    if (t.type === "savings") return pieChart([{label:"Saved",value:st.saved,display:fm(st.saved),color},{label:"To go",value:st.remaining,display:fm(st.remaining),color:P.lineStrong}]);
+    if (t.type === "ledger")  return pieChart([{label:"In",value:st.thisIn,display:fm(st.thisIn),color},{label:"Out",value:st.thisOut,display:fm(st.thisOut),color:P.lineStrong}]);
+    if (t.type === "habit")   return pieChart([{label:"Done",value:st.hits30,display:st.hits30,color},{label:"Missed",value:30-st.hits30,display:30-st.hits30,color:P.lineStrong}]);
+    const hit = st.series.filter(p=>p.value>0).length;
+    return pieChart([{label:"Logged",value:hit,display:hit,color},{label:"Blank",value:30-hit,display:30-hit,color:P.lineStrong}]);
+  }
+
+  if (t.type === "savings") return progressChart(st.pct, st.goal ? `${fm(st.saved)} of ${fm(st.goal)}` : `${fm(st.saved)} saved, no target`, color);
+  if (t.type === "ledger"){
+    const p = st.thisIn ? Math.min(1, st.thisOut/st.thisIn) : 0;
+    return progressChart(p, `${fm(st.thisOut)} out of ${fm(st.thisIn)} in`, color);
+  }
+  if (t.type === "habit")  return progressChart(st.pct, `${st.scored} of ${st.targetDays} ${st.unitWord} this week`, color);
+  if (t.type === "sleep")  return progressChart(st.pct, `${st.avgNight.toFixed(1)}h average vs ${st.target||8}h`, color);
+  return progressChart(st.pct, `${fm(st.current)} of ${fm(st.target||0)}${t.unit||""} ${t.targetPeriod==="week"?"this week":"today"}`, color);
+}
+
+/* ===== 8. INSIGHTS ===== */
+const plural = (n,w) => `${n} ${w}${n===1?"":"s"}`;
+function humanWeeks(w){
+  if (!isFinite(w)) return null;
+  if (w < 1.5) return "about a week";
+  if (w < 9) return `about ${Math.round(w)} weeks`;
+  const m = w/4.345;
+  return m < 18 ? `about ${Math.round(m)} months` : `about ${(m/12).toFixed(1)} years`;
+}
+
+function insightFor(t){
+  const st = stats(t);
+  const money = v => "$"+Math.round(v).toLocaleString();
+
+  if (t.type === "savings"){
+    if (!st.goal) return { tone:"watch", lead:"No target set", detail:`${money(st.saved)} put aside. Add a goal amount and this projects a finish date.`, gap:.4 };
+    if (st.pct >= 1) return { tone:"good", lead:"Goal reached", detail:`${money(st.saved)} of ${money(st.goal)}.`, gap:0 };
+    let detail = st.perWeek > 0
+      ? `Averaging ${money(st.perWeek)} a week. At that rate you reach ${money(st.goal)} in ${humanWeeks(st.weeksLeft)}.`
+      : `Nothing added yet, so there's no rate to project from.`;
+    let tone = "good", gap = 1 - st.pct;
+    if (t.deadline && isFinite(st.neededPerWeek)){
+      const short = st.neededPerWeek - st.perWeek;
+      if (short > .5){
+        tone = short > st.perWeek*.5 ? "behind" : "watch";
+        detail += ` Your ${st.daysLeft > 0 ? plural(st.daysLeft,"day") + " deadline" : "deadline"} needs ${money(st.neededPerWeek)} a week — ${money(short)} more than you're managing.`;
+        gap = Math.min(1, short/Math.max(1,st.neededPerWeek));
+      } else detail += ` That's ahead of what the deadline needs.`;
+    } else if (st.perWeek <= 0){ tone = "behind"; gap = 1; }
+    return { tone, lead:`${Math.round(st.pct*100)}% of the way there`, detail, gap };
+  }
+
+  if (t.type === "ledger"){
+    const net = st.thisNet;
+    return {
+      tone: net < 0 ? "behind" : net < st.avgIn*.1 ? "watch" : "good",
+      lead: `${net<0?"−":""}${money(Math.abs(net))} net this month`,
+      detail: `${money(st.thisIn)} in, ${money(st.thisOut)} out. Average bills run ${money(st.avgOut)} a month against ${money(st.avgIn)} income.`,
+      gap: net < 0 ? Math.min(1, Math.abs(net)/Math.max(1,st.avgIn)) : .1
+    };
+  }
+
+  if (t.type === "habit"){
+    const need = st.targetDays, got = st.scored, w = st.unitWord, rate = st.hits30/30*7;
+    if (got >= need) return { tone:"good", lead:`${got} of ${need} ${w} this week`, detail:`Target met${st.streak>1?`, ${plural(st.streak,"day")} streak running`:""}. 30-day pace is ${rate.toFixed(1)} days a week.`, gap:0 };
+    const left = 7 - (daysBetween(weekStart(today()), today()) + 1);
+    const short = need - got;
+    return {
+      tone: short > left ? "behind" : "watch",
+      lead: `${got} of ${need} ${w} this week`,
+      detail: short > left
+        ? `Only ${plural(left,"day")} left in the week, so this one can't be caught up. 30-day pace is ${rate.toFixed(1)} days a week.`
+        : `${short} more needed with ${plural(left,"day")} left.`,
+      gap: short/need
+    };
+  }
+
+  if (t.type === "sleep"){
+    const target = st.target || 8;
+    if (!st.avgNight) return { tone:"watch", lead:"Nothing logged this week", detail:"Log a few nights to see your average and how steady the schedule is.", gap:.5 };
+    const diff = st.avgNight - target;
+    const beds = st.entries.slice(-7).map(e=>e.bed).filter(Boolean);
+    let spread = "";
+    if (beds.length > 2){
+      const mins = beds.map(b=>{ const [h,m]=b.split(":").map(Number); return (h<12?h+24:h)*60+m; });
+      const mean = mins.reduce((a,b)=>a+b,0)/mins.length;
+      const sd = Math.sqrt(mins.reduce((s,x)=>s+(x-mean)**2,0)/mins.length);
+      spread = sd > 60 ? ` Bedtime swings about ${Math.round(sd)} minutes night to night — a bigger issue than the total.` : ` Bedtime holds within ${Math.round(sd)} minutes.`;
+    }
+    if (diff >= -.4) return { tone:"good", lead:`${st.avgNight.toFixed(1)}h average`, detail:`At or above your ${target}h target.${spread}`, gap:0 };
+    return { tone: diff < -1.2 ? "behind":"watch", lead:`${st.avgNight.toFixed(1)}h average`, detail:`${Math.abs(diff).toFixed(1)}h short of ${target}h — roughly ${Math.round(Math.abs(diff)*7)}h of debt a week.${spread}`, gap:Math.min(1,Math.abs(diff)/target) };
+  }
+
+  const unit = t.unit || "", cur = st.current, target = st.target;
+  if (!target) return { tone:"watch", lead:`${cur}${unit} logged`, detail:`Set a target and this tells you whether you're on pace.`, gap:.4 };
+  if (st.pct >= 1) return { tone:"good", lead:`${cur}${unit} of ${target}${unit}`, detail:`Target hit. 7-day average is ${st.avg7.toFixed(1)}${unit} a day.`, gap:0 };
+  if (t.targetPeriod === "week"){
+    const elapsed = daysBetween(weekStart(today()), today()) + 1;
+    const off = target*(elapsed/7) - cur;
+    const left = 7 - elapsed;
+    const perDay = left > 0 ? (target-cur)/left : (target-cur);
+    return {
+      tone: off > target*.2 ? "behind" : off > 0 ? "watch" : "good",
+      lead: `${cur}${unit} of ${target}${unit} this week`,
+      detail: off > 0
+        ? `${off.toFixed(1)}${unit} behind pace on day ${elapsed}. You'd need ${perDay.toFixed(1)}${unit} a day across the ${plural(left,"day")} left.`
+        : `Ahead of pace on day ${elapsed}.`,
+      gap: Math.max(0, off/target)
+    };
+  }
+  return { tone: st.pct < .5 ? "behind":"watch", lead:`${cur}${unit} of ${target}${unit} today`, detail:`${(target-cur).toFixed(1)}${unit} to go. 7-day average is ${st.avg7.toFixed(1)}${unit}.`, gap:1-st.pct };
+}
+
+/* ===== 9. RENDER: TRACKERS ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = v => "$"+Math.round(v).toLocaleString();
+
+function renderTrack(){
+  const el = $("#panel-track");
+  const live = S.trackers.filter(t=>!t.archived);
+  if (!live.length){ el.innerHTML = emptyState(); return; }
+  let html = "";
+  ORDER.forEach(type=>{
+    const tops = live.filter(t=>t.type===type && !t.parentId);
+    if (!tops.length) return;
+    html += `<div class="group-label">${TYPES[type].label}</div>`;
+    tops.forEach(t=>{
+      const kids = childrenOf(t.id);
+      html += rowFor(t, kids.length > 0, false);
+      kids.forEach(k => html += rowFor(k, false, true));
+    });
+  });
+  el.innerHTML = html;
+  el.querySelectorAll(".meter i").forEach(m => requestAnimationFrame(()=> m.style.width = m.dataset.w));
+}
+
+function controlsFor(t){
+  const st = stats(t);
+  if (t.type === "habit")
+    return `<button class="check" data-act="toggle" data-id="${t.id}" aria-pressed="${st.doneToday}" aria-label="Mark ${esc(t.name)} done today"><svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg></button>`;
+  if (t.type === "sleep"){
+    const e = ownEntryOn(t.id, today());
+    return `<input class="time-input" type="time" data-role="bed" data-id="${t.id}" value="${e?.bed||""}" aria-label="Bed time">
+      <input class="time-input" type="time" data-role="wake" data-id="${t.id}" value="${e?.wake||""}" aria-label="Wake time">
+      <button class="mini" data-act="sleep-save" data-id="${t.id}">Log</button>`;
+  }
+  if (t.type === "savings")
+    return `<input class="num-input" type="number" inputmode="decimal" placeholder="0" data-role="amt" data-id="${t.id}" aria-label="Amount to add">
+      <button class="mini" data-act="save-add" data-id="${t.id}">Add</button>`;
+  if (t.type === "ledger")
+    return `<input class="num-input" type="number" inputmode="decimal" placeholder="0" data-role="amt" data-id="${t.id}" aria-label="Amount">
+      <button class="mini" data-act="ledger-in" data-id="${t.id}">In</button>
+      <button class="mini secondary" data-act="ledger-out" data-id="${t.id}">Out</button>`;
+  const v = ownEntryOn(t.id, today())?.value || "";
+  return `<input class="num-input" type="number" inputmode="decimal" step="0.25" value="${v}" placeholder="0" data-role="val" data-id="${t.id}" aria-label="Value for today">
+    <button class="mini" data-act="val-save" data-id="${t.id}">Log</button>`;
+}
+
+function subtitleFor(t, group){
+  const st = stats(t);
+  if (t.type === "savings")
+    return st.goal ? `${money(st.saved)} of ${money(st.goal)} · ${money(st.perWeek)}/wk average` : `${money(st.saved)} put aside`;
+  if (t.type === "ledger")
+    return `This month ${money(st.thisIn)} in, ${money(st.thisOut)} out · average bills ${money(st.avgOut)}`;
+  if (t.type === "habit")
+    return `${st.scored}/${st.targetDays} ${st.unitWord} this week${st.streak>1?` · ${st.streak}-day streak`:""}`;
+  if (t.type === "sleep")
+    return `${st.avgNight.toFixed(1)}h average · target ${st.target||8}h`;
+  const per = t.targetPeriod === "week" ? `${st.week7.toFixed(1)}/${st.target||"—"}${t.unit||""} this week` : `${aggValueOn(t.id,today())}/${st.target||"—"}${t.unit||""} today`;
+  return `${per} · 7-day average ${st.avg7.toFixed(1)}${t.unit||""}`;
+}
+
+function rowFor(t, group, child){
+  const st = stats(t);
+  const c = themed(t.color || COLORS[0]);
+  const done = t.type === "habit" ? st.doneToday : (st.pct >= 1 && ["savings","count","hours"].includes(t.type));
+  const cls = ["row", group?"is-group":"", child?"is-child":"", done?"is-done":""].filter(Boolean).join(" ");
+  const kidCount = childrenOf(t.id).length;
+  const actions = group
+    ? `<button class="mini secondary" data-act="addsub" data-id="${t.id}">Add subsection</button>
+       <button class="mini secondary" data-act="edit" data-id="${t.id}">Edit</button>`
+    : `${controlsFor(t)}
+       ${child ? "" : `<button class="icon-btn" data-act="addsub" data-id="${t.id}" title="Add a subsection" aria-label="Add subsection">+</button>`}
+       <button class="mini secondary" data-act="edit" data-id="${t.id}">Edit</button>`;
+  const meter = (t.type !== "ledger") ? `<div class="meter"><i data-w="${(st.pct*100).toFixed(0)}%"></i></div>` : "";
+  return `<div class="${cls}" data-id="${t.id}">
+    <div>
+      <div class="row-name"><span class="pip" style="background:${c}"></span>${esc(t.name)}${group?` <span class="row-sub" style="margin:0">${kidCount} subsections</span>`:""}</div>
+      <div class="row-sub">${subtitleFor(t, group)}</div>
+    </div>
+    <div class="row-actions">${actions}</div>
+    ${meter}
+  </div>`;
+}
+
+function emptyState(){
+  return `<div class="empty"><p>Nothing tracked yet. Start with one of these, or build your own.</p>
+    <div class="templates">
+      <button class="mini secondary" data-tpl="gym">Gym</button>
+      <button class="mini secondary" data-tpl="savings">Savings goal</button>
+      <button class="mini secondary" data-tpl="work">Work hours</button>
+      <button class="mini secondary" data-tpl="sleep">Sleep</button>
+      <button class="mini secondary" data-tpl="bills">Income &amp; bills</button>
+    </div></div>`;
+}
+const TEMPLATES = {
+  gym:     { name:"Gym", type:"habit", target:4, targetPeriod:"week", chart:"progress", color:COLORS[0] },
+  savings: { name:"Savings goal", type:"savings", unit:"$", goalAmount:5000, chart:"progress", color:COLORS[1] },
+  work:    { name:"Work time", type:"hours", unit:"h", target:40, targetPeriod:"week", chart:"bar", color:COLORS[5] },
+  sleep:   { name:"Sleep", type:"sleep", unit:"h", target:8, targetPeriod:"day", chart:"line", color:COLORS[4] },
+  bills:   { name:"Income & bills", type:"ledger", unit:"$", targetPeriod:"month", chart:"bar", color:COLORS[3] }
+};
+
+/* ===== 10. RENDER: PROGRESS ===== */
+function renderProgress(){
+  const el = $("#panel-progress");
+  const live = S.trackers.filter(t=>!t.archived && !t.parentId);
+  if (!live.length){ el.innerHTML = `<div class="empty"><p>Charts appear here as soon as you add a tracker.</p></div>`; return; }
+  el.innerHTML = live.map(t=>{
+    const st = stats(t);
+    const kind = t.chart || TYPES[t.type].charts[0];
+    const picks = TYPES[t.type].charts.map(k=>`<button data-act="chart" data-id="${t.id}" data-kind="${k}" aria-pressed="${k===kind}">${CHART_LABEL[k]}</button>`).join("");
+    const kids = childrenOf(t.id);
+    const legend = kids.length ? `<div class="legend">${kids.map(k=>`<span><i class="pip" style="background:${themed(k.color||COLORS[0])}"></i>${esc(k.name)}</span>`).join("")}</div>` : "";
+    return `<div class="chart-card">
+      <div class="chart-head">
+        <div><div class="row-name"><span class="pip" style="background:${themed(t.color||COLORS[0])}"></span>${esc(t.name)}</div>
+        <div class="row-sub">${headline(t,st)}</div></div>
+        <div class="chart-picker">${picks}</div>
+      </div>
+      ${renderChart(t,st)}${legend}
+    </div>`;
+  }).join("");
+}
+function headline(t, st){
+  if (t.type === "savings") return `${money(st.saved)} saved${st.goal?` · ${Math.round(st.pct*100)}% of ${money(st.goal)}`:""}`;
+  if (t.type === "ledger")  return `Average bills ${money(st.avgOut)} · net this month ${money(st.thisNet)}`;
+  if (t.type === "habit")   return `${st.hits30} of the last 30 days${st.streak>1?` · ${st.streak}-day streak`:""}`;
+  if (t.type === "sleep")   return `${st.avgNight.toFixed(1)}h nightly average`;
+  return `7-day average ${st.avg7.toFixed(1)}${t.unit||""}`;
+}
+
+/* ===== 11. RENDER: DAYS ===== */
+let calMonth = monthKey(today());
+let calMetric = "all";
+let calSelected = null;
+
+function dayScore(date, metric){
+  // returns {score 0..1, dots:[colors]} relative to the best day in the visible month
+  const pool = metric === "all"
+    ? S.trackers.filter(t=>!t.archived && !isGroup(t))
+    : [byId(metric)].filter(Boolean);
+  const scores = [], dots = [];
+  pool.forEach(t=>{
+    const v = aggValueOn(t.id, date);
+    if (v === 0) return;
+    let norm;
+    if (t.type === "habit") norm = 1;
+    else {
+      const ref = monthMax(t.id);
+      const target = effTarget(t);
+      const basis = t.type === "savings" || t.type === "ledger" ? ref : (target || ref);
+      norm = basis ? Math.min(1, Math.abs(v)/basis) : 1;
+    }
+    scores.push(norm);
+    dots.push(themed(t.color || COLORS[0]));
+  });
+  if (!scores.length) return { score:0, dots:[] };
+  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+  const breadth = metric === "all" ? Math.min(1, scores.length / Math.max(1, pool.length)) : 1;
+  return { score: Math.max(.12, avg*0.65 + breadth*0.35), dots };
+}
+
+const _maxCache = {};
+function monthMax(id){
+  const k = id + calMonth;
+  if (_maxCache[k] !== undefined) return _maxCache[k];
+  let m = 0;
+  daysInMonth(calMonth).forEach(d => { m = Math.max(m, Math.abs(aggValueOn(id, d))); });
+  _maxCache[k] = m || 1;
+  return _maxCache[k];
+}
+function daysInMonth(k){
+  const y = +k.slice(0,4), mo = +k.slice(5,7);
+  const n = new Date(y, mo, 0).getDate();
+  return Array.from({length:n}, (_,i)=> `${k}-${String(i+1).padStart(2,"0")}`);
+}
+function shiftMonth(k, n){
+  const y = +k.slice(0,4), mo = +k.slice(5,7) - 1 + n;
+  const d = new Date(y, mo, 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+
+function renderDays(){
+  const el = $("#panel-days");
+  const live = S.trackers.filter(t=>!t.archived);
+  if (!live.length){ el.innerHTML = `<div class="empty"><p>The calendar fills in once you're tracking something.</p></div>`; return; }
+  Object.keys(_maxCache).forEach(k=>delete _maxCache[k]);
+
+  const opts = `<option value="all" ${calMetric==="all"?"selected":""}>Everything combined</option>` +
+    live.filter(t=>!isGroup(t)).map(t=>`<option value="${t.id}" ${calMetric===t.id?"selected":""}>${esc(t.name)}</option>`).join("");
+
+  const days = daysInMonth(calMonth);
+  const lead = (parse(days[0]).getDay()+6)%7;
+  const P = palette();
+  const accent = calMetric === "all" ? cssVar("--signal") : themed(byId(calMetric)?.color || COLORS[0]);
+  const accentRgb = hex2rgb(accent.startsWith("#") ? accent : "#15624B");
+  const surfRgb = hex2rgb(P.surface.startsWith("#") ? P.surface : "#FFFFFF");
+
+  let cells = "";
+  for (let i=0;i<lead;i++) cells += `<div class="cal-cell blank"></div>`;
+  days.forEach(d=>{
+    const { score, dots } = dayScore(d, calMetric);
+    const future = d > today();
+    const mixed = mixRgb(surfRgb, accentRgb, future ? 0 : score * .85);
+    const text = lum(mixed) > .5 ? "#141A1C" : "#FFFFFF";
+    const cls = ["cal-cell", d===today()?"today":"", d===calSelected?"sel":"", future?"future":""].filter(Boolean).join(" ");
+    cells += `<div class="${cls}" data-day="${d}" role="button" tabindex="0" style="background:${rgb2hex(mixed)};${score>0&&!future?`color:${text}`:""}">
+        <div class="cal-num">${+d.slice(8)}</div>
+        <div class="cal-dots">${dots.slice(0,6).map(c=>`<i class="cal-dot" style="background:${c}"></i>`).join("")}</div>
+      </div>`;
+  });
+
+  const dow = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="cal-dow">${d}</div>`).join("");
+  el.innerHTML = `
+    <div class="cal-bar">
+      <div class="cal-nav">
+        <button class="icon-btn" data-act="month" data-n="-1" aria-label="Previous month">‹</button>
+        <div class="cal-title">${monthName(calMonth)}</div>
+        <button class="icon-btn" data-act="month" data-n="1" aria-label="Next month">›</button>
+      </div>
+      <select class="ghost" id="cal-metric" aria-label="Shade days by">${opts}</select>
+    </div>
+    <div class="cal-grid">${dow}${cells}</div>
+    <div class="scale">
+      <span>Quiet</span>
+      <i style="background:${rgb2hex(mixRgb(surfRgb,accentRgb,.12))}"></i>
+      <i style="background:${rgb2hex(mixRgb(surfRgb,accentRgb,.35))}"></i>
+      <i style="background:${rgb2hex(mixRgb(surfRgb,accentRgb,.6))}"></i>
+      <i style="background:${rgb2hex(mixRgb(surfRgb,accentRgb,.85))}"></i>
+      <span>Best day this month</span>
+    </div>
+    <div id="day-detail"></div>`;
+  $("#cal-metric").addEventListener("change", e => { calMetric = e.target.value; renderDays(); });
+  if (calSelected) renderDayDetail();
+}
+
+function renderDayDetail(){
+  const host = $("#day-detail");
+  if (!host || !calSelected) return;
+  const d = calSelected;
+  const live = S.trackers.filter(t=>!t.archived && !isGroup(t));
+  const lines = live.map(t=>{
+    const c = themed(t.color||COLORS[0]);
+    const name = `<div class="row-name"><span class="pip" style="background:${c}"></span>${esc(t.name)}${t.parentId?` <span class="row-sub" style="margin:0">in ${esc(byId(t.parentId)?.name||"")}</span>`:""}</div>`;
+    if (t.type === "ledger"){
+      const items = S.entries.filter(e=>e.trackerId===t.id && e.date===d);
+      const list = items.length ? items.map(e=>`<div class="ledger-item"><b>${e.kind==="out"?"−":"+"}${money(e.value)}</b>${e.label?" · "+esc(e.label):""}<button class="icon-btn" data-act="del-entry" data-eid="${e.id}" aria-label="Delete entry">×</button></div>`).join("") : `<div class="ledger-item">Nothing logged</div>`;
+      return `<div class="edit-line"><div>${name}${list}</div>
+        <div class="row-actions">
+          <input class="num-input" type="number" placeholder="0" data-role="damt" data-id="${t.id}" aria-label="Amount">
+          <button class="mini" data-act="dled-in" data-id="${t.id}">In</button>
+          <button class="mini secondary" data-act="dled-out" data-id="${t.id}">Out</button>
+        </div></div>`;
+    }
+    const e = ownEntryOn(t.id, d);
+    if (t.type === "habit"){
+      return `<div class="edit-line">${name}<div class="row-actions">
+        <button class="check" data-act="dtoggle" data-id="${t.id}" aria-pressed="${!!(e&&e.value>0)}" aria-label="Toggle ${esc(t.name)}"><svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg></button></div></div>`;
+    }
+    if (t.type === "sleep"){
+      return `<div class="edit-line">${name}<div class="row-actions">
+        <input class="time-input" type="time" data-role="dbed" data-id="${t.id}" value="${e?.bed||""}" aria-label="Bed time">
+        <input class="time-input" type="time" data-role="dwake" data-id="${t.id}" value="${e?.wake||""}" aria-label="Wake time">
+        <button class="mini" data-act="dsleep" data-id="${t.id}">Save</button>
+        ${e?`<button class="icon-btn" data-act="dclear" data-id="${t.id}" aria-label="Clear">×</button>`:""}
+      </div></div>`;
+    }
+    return `<div class="edit-line">${name}<div class="row-actions">
+      <input class="num-input" type="number" step="0.25" placeholder="0" value="${e?e.value:""}" data-role="dval" data-id="${t.id}" aria-label="Value">
+      <button class="mini" data-act="dval" data-id="${t.id}">Save</button>
+      ${e?`<button class="icon-btn" data-act="dclear" data-id="${t.id}" aria-label="Clear">×</button>`:""}
+    </div></div>`;
+  }).join("");
+
+  const { score } = dayScore(d, calMetric);
+  host.innerHTML = `<div class="day-detail">
+    <h3>${prettyDate(d)}</h3>
+    <div class="row-sub">${score > .12 ? `${Math.round(score*100)}% of your best day this month` : "Nothing logged"} · edit anything below to correct it</div>
+    ${lines || `<p class="row-sub">No trackers to edit.</p>`}
+  </div>`;
+}
+
+/* ===== 12. RENDER: UPDATES ===== */
+function renderInsights(){
+  const el = $("#panel-insights");
+  const live = S.trackers.filter(t=>!t.archived);
+  let body = "";
+  if (!live.length){
+    body = `<div class="empty"><p>Once you're tracking something, this is where the pace math lands.</p></div>`;
+  } else {
+    const cards = live.map(t=>({ t, i:insightFor(t) })).sort((a,b)=> b.i.gap - a.i.gap);
+    const behind = cards.filter(c=>c.i.tone==="behind").length;
+    body = digestHTML() +
+      `<div class="group-label">${behind ? `${plural(behind,"tracker")} slipping, listed first` : "Everything on pace, most slack last"}</div>` +
+      cards.map(({t,i})=>`<div class="insight ${i.tone}">
+        <h4>${t.parentId ? esc(byId(t.parentId)?.name||"") + " · " : ""}${esc(t.name)}</h4>
+        <div class="lead">${i.lead}</div><p>${i.detail}</p></div>`).join("");
+  }
+  if (S.settings.apiKey){
+    body += `<div class="chat"><div class="chat-log" id="chat-log">${
+      S.chat.length ? S.chat.map(m=>`<div class="bubble ${m.role==="user"?"me":"ai"}">${esc(m.text)}</div>`).join("")
+      : `<div class="bubble ai">Ask me anything about your numbers — I can see every tracker, subsection and entry. Try "which savings subsection should I feed first?"</div>`}</div>
+      <div class="chat-form"><input id="chat-input" placeholder="Bounce an idea off me" autocomplete="off"><button class="mini" id="chat-send">Send</button></div></div>`;
+  } else {
+    body += `<div class="chat"><div style="padding:18px">
+      <h4 style="margin:0 0 5px;font-size:14.5px">Want to talk it through?</h4>
+      <p class="row-sub" style="margin:0 0 12px">Everything above is calculated on your device and needs nothing. Add an Anthropic API key and you also get a chat that can see all of it and argue trade-offs with you.</p>
+      <button class="mini secondary" data-act="open-settings">Add a key in Settings</button>
+    </div></div>`;
+  }
+  el.innerHTML = body;
+  $("#chat-send")?.addEventListener("click", sendChat);
+  $("#chat-input")?.addEventListener("keydown", e => { if (e.key === "Enter") sendChat(); });
+  const log = $("#chat-log"); if (log) log.scrollTop = log.scrollHeight;
+}
+
+function dataSnapshot(){
+  return S.trackers.filter(t=>!t.archived).map(t=>{
+    const st = stats(t), i = insightFor(t);
+    const base = { name:t.name, type:t.type, partOf: t.parentId ? byId(t.parentId)?.name : null,
+      subsections: childrenOf(t.id).map(k=>k.name), target:effTarget(t), status:i.tone, summary:i.lead+" — "+i.detail };
+    if (t.type === "savings") Object.assign(base,{ saved:Math.round(st.saved), goal:st.goal, perWeek:Math.round(st.perWeek), deadline:t.deadline||null });
+    if (t.type === "ledger")  Object.assign(base,{ avgMonthlyIn:Math.round(st.avgIn), avgMonthlyOut:Math.round(st.avgOut), netThisMonth:Math.round(st.thisNet) });
+    if (["habit","count","hours","sleep"].includes(t.type)) Object.assign(base,{ last7:st.series.slice(-7).map(p=>+p.value.toFixed(2)), avg7:+st.avg7.toFixed(2) });
+    return base;
+  });
+}
+
+async function sendChat(){
+  const input = $("#chat-input"), log = $("#chat-log");
+  const text = input.value.trim(); if (!text) return;
+  input.value = "";
+  S.chat.push({ role:"user", text });
+  log.insertAdjacentHTML("beforeend", `<div class="bubble me">${esc(text)}</div>`);
+  const thinking = document.createElement("div");
+  thinking.className = "bubble ai"; thinking.textContent = "Thinking…";
+  log.appendChild(thinking); log.scrollTop = log.scrollHeight;
+  const history = S.chat.slice(-10).map(m=>({ role: m.role==="user"?"user":"assistant", content:m.text }));
+  const system = `You are the advisor inside a personal tracking app. The user's current data as JSON:
+
+${JSON.stringify(dataSnapshot(), null, 1)}
+
+Today is ${today()}. Answer using these numbers. Be concrete, cite the actual figures, and when goals compete give a clear recommendation and say what it costs. Under 120 words unless they ask for depth. Don't recite the dataset back at them.`;
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key": S.settings.apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, system, messages:history })
+    });
+    if (!res.ok){
+      const t = await res.text().catch(()=>"");
+      throw new Error(res.status === 401 ? "That API key was rejected." : "API error " + res.status + " " + t.slice(0,120));
+    }
+    const data = await res.json();
+    const reply = (data.content||[]).map(b=>b.type==="text"?b.text:"").filter(Boolean).join("\n") || "No answer came back.";
+    thinking.textContent = reply;
+    S.chat.push({ role:"assistant", text:reply }); persist();
+  } catch(err){
+    thinking.textContent = (err && err.message) ? err.message : "Couldn't reach the model. Check your connection — nothing else in the app is affected.";
+  }
+  log.scrollTop = log.scrollHeight;
+}
+
+/* ===== 13. TRACKER SHEET ===== */
+let draftColor = COLORS[0];
+
+function openSheet(existing, presetParentId){
+  const parent = presetParentId ? byId(presetParentId) : (existing?.parentId ? byId(existing.parentId) : null);
+  const t = existing || { type: parent ? parent.type : "habit", targetPeriod: parent ? parent.targetPeriod : "week", color: COLORS[(S.trackers.length)%COLORS.length], chart:"progress" };
+  draftColor = t.color || COLORS[0];
+  const lockType = !!parent;
+  const typeOpts = Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${k===t.type?"selected":""}>${v.label.replace(/s$/,"")}</option>`).join("");
+  const swatches = COLORS.map(c=>`<button class="swatch" style="background:${c}" data-color="${c}" aria-pressed="${c===draftColor}" aria-label="Colour"></button>`).join("");
+  const title = existing ? "Edit tracker" : (parent ? `New subsection` : "New tracker");
+  const sub = parent ? `Part of ${esc(parent.name)}. It rolls up into that total automatically.` : "";
+
+  $("#sheet").innerHTML = `
+    <h3>${title}</h3>${sub?`<p class="sheet-sub">${sub}</p>`:""}
+    <div class="field"><label for="f-name">Name</label>
+      <input id="f-name" value="${existing?esc(t.name):""}" placeholder="${parent?"Savings 1":"Emergency fund, Gym, Client hours…"}"></div>
+    <div class="field"><label for="f-type">What kind of thing is it</label>
+      <select id="f-type" ${lockType?"disabled":""}>${typeOpts}</select>
+      <div class="hint" id="type-hint"></div></div>
+    <div id="type-fields"></div>
+    <div class="field"><label>Colour</label><div class="swatches" id="f-colors">${swatches}</div></div>
+    ${existing && !isGroup(existing) ? `<div class="field"><label>Recent entries</label><div class="hist-wrap" id="f-hist"></div></div>` : ""}
+    <div class="sheet-actions">
+      <div>${existing?`<button class="mini danger" id="f-delete">Delete tracker</button>`:""}</div>
+      <div style="display:flex;gap:8px">
+        <button class="mini secondary" id="f-cancel">Cancel</button>
+        <button class="mini" id="f-save">${existing?"Save changes":"Create"}</button>
+      </div>
+    </div>`;
+
+  const hints = {
+    habit:"Tap a circle each day you do it. Target is days per week.",
+    count:"A number you log daily — reps, pages, glasses of water.",
+    hours:"Time logged per day, totalled against a daily or weekly target.",
+    savings:"Deposits that stack toward a goal. Projects your finish date.",
+    sleep:"Bed and wake time each night. Tracks hours and how steady the schedule is.",
+    ledger:"Money in and out. Gives monthly net and average bills."
+  };
+  function typeFields(){
+    const type = $("#f-type").value;
+    $("#type-hint").textContent = hints[type];
+    let f = "";
+    if (type === "habit") f = `<div class="field"><label for="f-target">Days per week you're aiming for</label><input id="f-target" type="number" min="1" max="7" value="${t.target||4}"></div>`;
+    else if (type === "savings") f = `<div class="field-pair">
+        <div class="field"><label for="f-goal">Goal amount${parent?" for this subsection":""}</label><input id="f-goal" type="number" value="${t.goalAmount||""}" placeholder="5000"></div>
+        <div class="field"><label for="f-deadline">Target date (optional)</label><input id="f-deadline" type="date" value="${t.deadline||""}"></div></div>
+        ${parent?"":`<div class="hint">Leave blank on a parent goal and it adds up its subsections instead.</div>`}`;
+    else if (type === "sleep") f = `<div class="field"><label for="f-target">Hours you want per night</label><input id="f-target" type="number" step="0.5" value="${t.target||8}"></div>`;
+    else if (type === "ledger") f = `<div class="hint">Log amounts with the In and Out buttons on the Trackers tab.</div>`;
+    else f = `<div class="field-pair">
+        <div class="field"><label for="f-target">Target</label><input id="f-target" type="number" step="0.5" value="${t.target||""}" placeholder="40"></div>
+        <div class="field"><label for="f-period">Per</label><select id="f-period"><option value="day" ${t.targetPeriod==="day"?"selected":""}>Day</option><option value="week" ${t.targetPeriod==="week"?"selected":""}>Week</option></select></div></div>
+        <div class="field"><label for="f-unit">Unit label</label><input id="f-unit" value="${t.unit||TYPES[type].unitDefault}" placeholder="h"></div>`;
+    $("#type-fields").innerHTML = f;
+  }
+  typeFields();
+  $("#f-type").addEventListener("change", typeFields);
+
+  if (existing && !isGroup(existing)) renderHistory(existing);
+
+  $("#f-colors").addEventListener("click", e=>{
+    const b = e.target.closest(".swatch"); if (!b) return;
+    draftColor = b.dataset.color;
+    $("#f-colors").querySelectorAll(".swatch").forEach(s=>s.setAttribute("aria-pressed", s.dataset.color===draftColor));
+  });
+  $("#f-cancel").addEventListener("click", closeSheet);
+  $("#f-delete")?.addEventListener("click", ()=>{
+    const kids = childrenOf(t.id).length;
+    const msg = kids ? `Delete "${t.name}" and its ${plural(kids,"subsection")}, along with every entry? This can't be undone.`
+                     : `Delete "${t.name}" and all its entries? This can't be undone.`;
+    if (!confirm(msg)) return;
+    deleteTracker(t.id); closeSheet(); renderAll(); toast("Tracker deleted");
+  });
+  $("#f-save").addEventListener("click", ()=>{
+    const name = $("#f-name").value.trim();
+    if (!name){ $("#f-name").focus(); toast("Give it a name first"); return; }
+    const type = lockType ? parent.type : $("#f-type").value;
+    const rec = existing || { id:uid(), createdAt:today() };
+    rec.name = name; rec.type = type; rec.color = draftColor;
+    rec.parentId = existing ? (existing.parentId||null) : (presetParentId||null);
+    rec.target = +($("#f-target")?.value) || null;
+    rec.targetPeriod = $("#f-period")?.value || TYPES[type].periodDefault;
+    rec.unit = $("#f-unit")?.value ?? TYPES[type].unitDefault;
+    rec.goalAmount = +($("#f-goal")?.value) || null;
+    rec.deadline = $("#f-deadline")?.value || null;
+    if (!TYPES[type].charts.includes(rec.chart)) rec.chart = TYPES[type].charts[0];
+    if (!existing) S.trackers.push(rec);
+    persist(); closeSheet(); renderAll();
+    toast(existing ? "Changes saved" : (presetParentId ? "Subsection added" : "Tracker created"));
+  });
+
+  $("#scrim").classList.add("is-open");
+  setTimeout(()=>$("#f-name").focus(), 60);
+}
+
+function renderHistory(t){
+  const host = $("#f-hist"); if (!host) return;
+  const es = S.entries.filter(e=>e.trackerId===t.id).sort((a,b)=> a.date<b.date?1:-1).slice(0,40);
+  if (!es.length){ host.innerHTML = `<p class="hint">No entries yet.</p>`; return; }
+  host.innerHTML = es.map(e=>{
+    const val = t.type === "habit" ? "Done"
+      : t.type === "sleep" ? `${e.value.toFixed(1)}h${e.bed?` (${e.bed}–${e.wake})`:""}`
+      : MONEY_TYPES.includes(t.type) ? `${e.kind==="out"?"−":""}${money(e.value)}`
+      : `${e.value}${t.unit||""}`;
+    const editable = !["habit"].includes(t.type);
+    return `<div class="hist-line">
+      <span>${shortDate(e.date)}</span>
+      ${editable ? `<input class="num-input" style="width:100%" type="number" step="0.25" value="${e.value}" data-role="hval" data-eid="${e.id}" aria-label="Value on ${e.date}">` : `<span>${val}</span>`}
+      <button class="icon-btn" data-act="hist-del" data-eid="${e.id}" data-tid="${t.id}" aria-label="Delete entry">×</button>
+    </div>`;
+  }).join("");
+}
+function closeSheet(){ $("#scrim").classList.remove("is-open"); }
+
+
+/* ===== 13b. ACHIEVEMENTS ===== */
+const GLYPH = {
+  pen:'<path d="M5 19l1.5-4.2L16.8 4.5a2 2 0 0 1 2.8 2.8L9.2 17.6 5 19z"/>',
+  dots:'<circle cx="9" cy="12" r="3.2"/><circle cx="16" cy="12" r="3.2"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.2"/><rect x="13" y="4" width="7" height="7" rx="1.2"/><rect x="4" y="13" width="7" height="7" rx="1.2"/><rect x="13" y="13" width="7" height="7" rx="1.2"/>',
+  branch:'<circle cx="6" cy="5.5" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="18" cy="18.5" r="2"/><path d="M6 7.5v7a4 4 0 0 0 4 4h6M6 9c0 2 1.8 3 4 3h6"/>',
+  layers:'<path d="M12 3l8.5 4.5L12 12 3.5 7.5 12 3z"/><path d="M3.5 12L12 16.5 20.5 12M3.5 16.5L12 21l8.5-4.5"/>',
+  calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  compass:'<circle cx="12" cy="12" r="8.5"/><path d="M15.6 8.4l-2.2 5-5 2.2 2.2-5 5-2.2z"/>',
+  map:'<path d="M3 6.5l6-2.5 6 2.5 6-2.5v13l-6 2.5-6-2.5-6 2.5v-13z"/><path d="M9 4v13M15 6.5v13"/>',
+  flame:'<path d="M12 21c3.5 0 6-2.4 6-5.6 0-3.6-3-5-4.2-8.4-1.8 1.4-1.2 3.6-2.4 4.6-1-.8-1-2.2-1-3.2C8.2 9.6 6 11.8 6 15.4 6 18.6 8.5 21 12 21z"/>',
+  shield:'<path d="M12 3l7.5 3v6.2c0 4.3-3 7.8-7.5 9.3-4.5-1.5-7.5-5-7.5-9.3V6L12 3z"/>',
+  crown:'<path d="M4 8.5l3.6 3.8L12 5l4.4 7.3L20 8.5 18.4 19H5.6L4 8.5z"/>',
+  infinity:'<path d="M8.6 9.4a3.6 3.6 0 1 0 0 5.2c2.2 0 3.2-5.2 5.4-5.2a3.6 3.6 0 1 1 0 5.2c-2.2 0-3.2-5.2-5.4-5.2z"/>',
+  steps:'<rect x="3.5" y="14.5" width="5" height="6" rx="1"/><rect x="9.5" y="9.5" width="5" height="11" rx="1"/><rect x="15.5" y="4.5" width="5" height="16" rx="1"/>',
+  link:'<path d="M10.2 13.8a4 4 0 0 0 5.7 0l2.4-2.4a4 4 0 1 0-5.7-5.7l-1 1"/><path d="M13.8 10.2a4 4 0 0 0-5.7 0l-2.4 2.4a4 4 0 1 0 5.7 5.7l1-1"/>',
+  star:'<path d="M12 3.4l2.7 5.7 6.2.9-4.5 4.3 1.1 6.1L12 17.6 6.5 20.4l1.1-6.1-4.5-4.3 6.2-.9L12 3.4z"/>',
+  stars:'<path d="M9 3.2l1.7 3.7 3.7 1.7-3.7 1.7L9 14l-1.7-3.7L3.6 8.6l3.7-1.7L9 3.2z"/><path d="M17.2 12.6l1 2.3 2.3 1-2.3 1-1 2.3-1-2.3-2.3-1 2.3-1 1-2.3z"/>',
+  sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.2v2.4M12 19.4v2.4M4.4 4.4l1.7 1.7M17.9 17.9l1.7 1.7M2.2 12h2.4M19.4 12h2.4M4.4 19.6l1.7-1.7M17.9 6.1l1.7-1.7"/>',
+  mountain:'<path d="M2.5 19.5l6.5-11.5 4 6.8 2.6-4.2 5.9 8.9H2.5z"/>',
+  coin:'<circle cx="12" cy="12" r="8.4"/><path d="M14.8 9.2c-.7-.8-1.7-1.2-2.8-1.2-1.5 0-2.6.9-2.6 2 0 2.8 5.6 1.5 5.6 4.4 0 1.3-1.2 2.2-2.8 2.2-1.2 0-2.3-.5-3-1.4M12 6v12"/>',
+  vault:'<rect x="3.2" y="5" width="17.6" height="14.5" rx="2"/><circle cx="12" cy="12.2" r="3.8"/><path d="M12 6.6v2M12 15.8v2M6.5 12.2h2M15.5 12.2h2"/>',
+  gem:'<path d="M6.2 4h11.6L21.5 9 12 20.5 2.5 9l3.7-5z"/><path d="M2.5 9h19M9.2 4L7.4 9l4.6 11.5L16.6 9l-1.8-5"/>',
+  flag:'<path d="M6 21V3.5M6 4.5h11.5l-2.2 3.8 2.2 3.9H6"/>',
+  trophy:'<path d="M8 3.8h8v5.4a4 4 0 0 1-8 0V3.8z"/><path d="M8 5.4H5.4a2.6 2.6 0 0 0 2.6 4.8M16 5.4h2.6a2.6 2.6 0 0 1-2.6 4.8M12 13.2v4M8.8 20.2h6.4"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/>',
+  hourglass:'<path d="M6.8 3h10.4M6.8 21h10.4M6.8 3c0 5.2 5.2 6 5.2 9 0-3 5.2-3.8 5.2-9M6.8 21c0-5.2 5.2-6 5.2-9 0 3 5.2 3.8 5.2 9"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.3"/>',
+  bolt:'<path d="M13.6 2.4L4.8 13.8h6.2l-1.6 7.8 8.8-11.4h-6.2l1.6-7.8z"/>',
+  moon:'<path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a8.6 8.6 0 1 0 10.8 10.8z"/>',
+  bed:'<path d="M3 19.5V9M3 13.5h18v6M21 19.5v-3"/><circle cx="7.6" cy="10.8" r="2"/>',
+  book:'<path d="M4 5.6A2.6 2.6 0 0 1 6.6 3H19.5v15.4H6.6A2.6 2.6 0 0 0 4 21V5.6z"/><path d="M19.5 18.4V21H6.6"/>',
+  leaf:'<path d="M5 19.5c0-8.4 5.8-12.5 14.6-12.5 0 8.9-4.7 13-11.5 13H5z"/><path d="M5 19.5c3.2-4.2 6.3-6.3 9.9-7.9"/>',
+  pendulum:'<path d="M12 3.2v9.2M12 12.4l-5.2 8.2h10.4L12 12.4z"/><circle cx="12" cy="3.2" r="1.6"/>',
+  rain:'<path d="M7.4 15.2A4.6 4.6 0 0 1 8 6.2a6.1 6.1 0 0 1 11.4 2.4 3.6 3.6 0 0 1-.6 7"/><path d="M9 18.4l-1 3M13 18.4l-1 3M17 18.4l-1 3"/>',
+  key:'<circle cx="8.2" cy="8.2" r="4.2"/><path d="M11.2 11.2l9 9M17.4 17.4l2-2M14.6 14.6l2-2"/>',
+  scale:'<path d="M12 3.4v17.2M6.6 20.6h10.8M4 8.4h16M4 8.4l-2.4 5.2h4.8L4 8.4zM20 8.4l-2.4 5.2h4.8L20 8.4z"/>'
+};
+const TIER = { bronze:"#A87142", silver:"#8E9BA3", gold:"#C99A2E", master:"#8E5CC4" };
+const TIER_NAME = { bronze:"Bronze", silver:"Silver", gold:"Gold", master:"Master" };
+
+function badgeSVG(glyph, tier, earned){
+  const P = palette();
+  const col = TIER[tier];
+  const ring = earned ? col : P.lineStrong;
+  const fg   = earned ? col : P.muted;
+  const bg   = earned ? rgb2hex(mixRgb(hex2rgb(P.surface.startsWith("#")?P.surface:"#FFFFFF"), hex2rgb(col), .16)) : "none";
+  return `<svg class="badge-svg" viewBox="0 0 56 56" style="opacity:${earned?1:.6}">
+    <circle cx="28" cy="28" r="25" fill="${bg}" stroke="${ring}" stroke-width="${earned?2:1.4}" ${earned?"":'stroke-dasharray="3 3"'}/>
+    <g transform="translate(16 16)" fill="none" stroke="${fg}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${GLYPH[glyph]||GLYPH.star}</g>
+  </svg>`;
+}
+
+/* --- derived data, recomputed once per sync --- */
+let AC = null;
+function leafTrackers(){ return S.trackers.filter(t=>!t.archived && !isGroup(t)); }
+function trackerBirth(t){
+  if (t.createdAt) return t.createdAt;
+  const es = S.entries.filter(e=>e.trackerId===t.id);
+  return es.length ? es.map(e=>e.date).sort()[0] : today();
+}
+function longestRun(dates){
+  const u = [...new Set(dates)].sort();
+  let best = 0, run = 0, prev = null;
+  u.forEach(d=>{ run = (prev && daysBetween(prev,d)===1) ? run+1 : 1; prev = d; best = Math.max(best,run); });
+  return best;
+}
+function longestWeekRun(weeks){
+  const u = [...new Set(weeks)].sort();
+  let best = 0, run = 0, prev = null;
+  u.forEach(w=>{ run = (prev && daysBetween(prev,w)===7) ? run+1 : 1; prev = w; best = Math.max(best,run); });
+  return best;
+}
+
+function buildAC(){
+  const leaves = leafTrackers();
+  const dates = [...new Set(S.entries.map(e=>e.date))].sort();
+  const first = dates[0] || today();
+  const span = Math.min(400, daysBetween(first, today()) + 1);
+
+  /* A day scores on trailing seven-day pace, not that day's raw total, so a
+     four-times-a-week habit still reads as on track on a rest day. Each tracker
+     is measured against its own weekly expectation, then averaged — which is
+     what makes a two-tracker day comparable to a five-tracker one. */
+  const spanDates = [];
+  for (let i=0;i<span;i++) spanDates.push(addDays(today(), -(span-1-i)));
+  const idx = new Map(spanDates.map((d,i)=>[d,i]));
+
+  const daily = new Map();
+  leaves.forEach(t => daily.set(t.id, new Float64Array(span)));
+  S.entries.forEach(e=>{
+    const arr = daily.get(e.trackerId); if (!arr) return;
+    const i = idx.get(e.date); if (i === undefined) return;
+    const t = byId(e.trackerId);
+    arr[i] += t.type === "ledger" ? 1 : (e.value || 0);   // ledger counts movements, not dollars
+  });
+  const prefix = new Map();
+  daily.forEach((arr,id)=>{
+    const pf = new Float64Array(span+1);
+    for (let i=0;i<span;i++) pf[i+1] = pf[i] + arr[i];
+    prefix.set(id, pf);
+  });
+  const windowSum = (id,i) => { const pf = prefix.get(id); return pf[i+1] - pf[Math.max(0,i-6)]; };
+
+  const weeklyExp = new Map();
+  leaves.forEach(t=>{
+    const tg = effTarget(t);
+    if (t.type === "habit")  weeklyExp.set(t.id, tg || 7);
+    else if (t.type === "sleep") weeklyExp.set(t.id, (tg || 8) * 6.5);
+    else if (t.type === "count" || t.type === "hours")
+      weeklyExp.set(t.id, tg ? (t.targetPeriod === "week" ? tg : tg*7) : null);
+    else if (t.type === "savings"){
+      const es = S.entries.filter(e=>e.trackerId===t.id);
+      const tot = es.reduce((a,e)=>a+e.value,0);
+      const wks = Math.max(1, daysBetween(trackerBirth(t), today())/7);
+      weeklyExp.set(t.id, tot > 0 ? tot/wks : null);
+    } else weeklyExp.set(t.id, 1);
+  });
+
+  const scores = new Map();
+  spanDates.forEach((d,i)=>{
+    const pool = leaves.filter(t => trackerBirth(t) <= d);
+    if (!pool.length){ scores.set(d,0); return; }
+    let sum = 0;
+    pool.forEach(t=>{
+      const w = windowSum(t.id, i);
+      const exp = weeklyExp.get(t.id);
+      sum += exp ? Math.min(1, w/exp) : (w > 0 ? 1 : 0);
+    });
+    scores.set(d, sum/pool.length);
+  });
+  const scored = [...scores.entries()];
+
+  const bestWindow = n => {
+    if (scored.length < n) return 0;
+    let best = 0;
+    for (let i=0;i<=scored.length-n;i++){
+      let s = 0; for (let j=0;j<n;j++) s += scored[i+j][1];
+      best = Math.max(best, s/n);
+    }
+    return best;
+  };
+
+  const monthScore = {}, monthActive = {};
+  scored.forEach(([d,v])=>{
+    const k = monthKey(d);
+    (monthScore[k] = monthScore[k] || []).push(v);
+    if (v > 0) monthActive[k] = (monthActive[k]||0) + 1;
+  });
+  const monthAvgs = Object.entries(monthScore).map(([k,a])=>[k, a.reduce((x,y)=>x+y,0)/a.length]);
+
+  const byType = ty => leaves.filter(t=>t.type===ty);
+  const entsOf = ty => S.entries.filter(e=>{ const t = byId(e.trackerId); return t && t.type===ty; });
+
+  const savingsEnts = entsOf("savings");
+  const sleepEnts = entsOf("sleep").filter(e=>e.value>0);
+  const ledgerEnts = entsOf("ledger");
+
+  const goalsDone = byType("savings").filter(t=>{
+    const g = effGoal(t); if (!g) return false;
+    return stats(t).saved >= g;
+  }).length;
+
+  const hoursWeeksHit = [];
+  byType("hours").forEach(t=>{
+    const tg = effTarget(t); if (!tg || t.targetPeriod !== "week") return;
+    const buckets = {};
+    S.entries.filter(e=>e.trackerId===t.id).forEach(e=>{ const w = weekStart(e.date); buckets[w] = (buckets[w]||0) + e.value; });
+    Object.entries(buckets).forEach(([w,v])=>{ if (v >= tg) hoursWeeksHit.push(w); });
+  });
+
+  const ledgerMonths = {};
+  ledgerEnts.forEach(e=>{ const k = monthKey(e.date); ledgerMonths[k] = ledgerMonths[k] || {in:0,out:0}; ledgerMonths[k][e.kind==="out"?"out":"in"] += e.value; });
+  const greenMonths = Object.values(ledgerMonths).filter(m=>m.in > m.out).length;
+
+  let sleepSteady = false;
+  const sortedSleep = sleepEnts.filter(e=>e.bed).sort((a,b)=>a.date<b.date?-1:1);
+  for (let i=0;i+7<=sortedSleep.length;i++){
+    const mins = sortedSleep.slice(i,i+7).map(e=>{ const [h,m]=e.bed.split(":").map(Number); return (h<12?h+24:h)*60+m; });
+    const mean = mins.reduce((a,b)=>a+b,0)/7;
+    const sd = Math.sqrt(mins.reduce((a,x)=>a+(x-mean)**2,0)/7);
+    if (sd <= 30){ sleepSteady = true; break; }
+  }
+  const sleepOnTarget = sleepEnts.filter(e=>{ const t = byId(e.trackerId); return t && e.value >= (effTarget(t)||8); });
+
+  let habitStreak = 0;
+  byType("habit").forEach(t=>{
+    habitStreak = Math.max(habitStreak, longestRun(S.entries.filter(e=>e.trackerId===t.id && e.value>0).map(e=>e.date)));
+  });
+  S.trackers.filter(t=>t.type==="habit" && isGroup(t)).forEach(t=>{
+    const fam = familyIds(t.id);
+    habitStreak = Math.max(habitStreak, longestRun(S.entries.filter(e=>fam.includes(e.trackerId) && e.value>0).map(e=>e.date)));
+  });
+
+  AC = {
+    scored,
+    entryCount: S.entries.length,
+    trackerCount: S.trackers.filter(t=>!t.archived).length,
+    subCount: S.trackers.filter(t=>t.parentId && !t.archived).length,
+    maxSubs: Math.max(0, ...S.trackers.map(t=>childrenOf(t.id).length)),
+    activeDays: dates.length,
+    activeRun: longestRun(dates),
+    typesUsed: new Set(leaves.filter(t=>S.entries.some(e=>e.trackerId===t.id)).map(t=>t.type)).size,
+    typesOwned: new Set(S.trackers.filter(t=>!t.archived).map(t=>t.type)),
+    habitStreak,
+    perfect: scored.filter(([,v])=>v >= .9).length,
+    strongDays: scored.filter(([,v])=>v >= .6).length,
+    week80: bestWindow(7),
+    month50: monthAvgs.filter(([,v])=>v >= .5).length,
+    monthsSolid: Object.values(monthActive).filter(n=>n >= 15).length,
+    ageDays: dates.length ? daysBetween(first, today()) + 1 : 0,
+    saved: savingsEnts.reduce((a,e)=>a+e.value,0),
+    goalsDone,
+    depositWeekRun: longestWeekRun(savingsEnts.map(e=>weekStart(e.date))),
+    depositMonths: new Set(savingsEnts.map(e=>monthKey(e.date))).size,
+    hours: entsOf("hours").reduce((a,e)=>a+e.value,0),
+    hoursWeeks: [...new Set(hoursWeeksHit)],
+    hoursWeekRun: longestWeekRun(hoursWeeksHit),
+    countEnts: entsOf("count").length,
+    sleepNights: sleepEnts.length,
+    sleepOnTarget: sleepOnTarget.length,
+    sleepSteady,
+    ledgerCount: ledgerEnts.length,
+    greenMonths
+  };
+  return AC;
+}
+
+const has = ty => AC.typesOwned.has(ty) ? 1 : 0;
+const ACHIEVEMENTS = [
+  /* --- getting started --- */
+  {id:"first",   cat:"Getting started", tier:"bronze", glyph:"pen",      n:"First Mark",      d:"Log your first entry",                 p:()=>[Math.min(AC.entryCount,1),1]},
+  {id:"two",     cat:"Getting started", tier:"bronze", glyph:"dots",     n:"Two of a Kind",   d:"Run two trackers at once",             p:()=>[AC.trackerCount,2]},
+  {id:"five",    cat:"Getting started", tier:"bronze", glyph:"grid",     n:"Full Bench",      d:"Run five trackers at once",            p:()=>[AC.trackerCount,5]},
+  {id:"sub1",    cat:"Getting started", tier:"bronze", glyph:"branch",   n:"Branching Out",   d:"Create your first subsection",         p:()=>[Math.min(AC.subCount,1),1]},
+  {id:"sub3",    cat:"Getting started", tier:"silver", glyph:"layers",   n:"Well Sorted",     d:"Give one goal three subsections",      p:()=>[AC.maxSubs,3]},
+  {id:"types3",  cat:"Getting started", tier:"bronze", glyph:"compass",  n:"Explorer",        d:"Log entries in three kinds of tracker",p:()=>[AC.typesUsed,3]},
+  {id:"types6",  cat:"Getting started", tier:"gold",   glyph:"map",      n:"Full Spread",     d:"Log entries in all six kinds",         p:()=>[AC.typesUsed,6]},
+  {id:"week1",   cat:"Getting started", tier:"bronze", glyph:"calendar", n:"Seven Sights",    d:"Log something on seven days",          p:()=>[AC.activeDays,7]},
+
+  /* --- consistency --- */
+  {id:"s3",      cat:"Consistency", tier:"bronze", glyph:"flame",     n:"Warm Up",         d:"Three-day streak on a habit",          p:()=>[AC.habitStreak,3]},
+  {id:"s7",      cat:"Consistency", tier:"bronze", glyph:"flame",     n:"Week Solid",      d:"Seven-day streak on a habit",          p:()=>[AC.habitStreak,7]},
+  {id:"s14",     cat:"Consistency", tier:"silver", glyph:"shield",    n:"Fortnight",       d:"Fourteen-day habit streak",            p:()=>[AC.habitStreak,14]},
+  {id:"s30",     cat:"Consistency", tier:"silver", glyph:"shield",    n:"Month Solid",     d:"Thirty-day habit streak",              p:()=>[AC.habitStreak,30]},
+  {id:"s100",    cat:"Consistency", tier:"gold",   glyph:"crown",     n:"The Hundred",     d:"Hundred-day habit streak",             p:()=>[AC.habitStreak,100]},
+  {id:"s365",    cat:"Consistency", tier:"master", glyph:"infinity",  n:"Year of It",      d:"365-day habit streak",                 p:()=>[AC.habitStreak,365]},
+  {id:"a30",     cat:"Consistency", tier:"bronze", glyph:"steps",     n:"Showing Up",      d:"Thirty days with an entry",            p:()=>[AC.activeDays,30]},
+  {id:"a100",    cat:"Consistency", tier:"silver", glyph:"steps",     n:"Century of Days", d:"A hundred days with an entry",         p:()=>[AC.activeDays,100]},
+  {id:"a300",    cat:"Consistency", tier:"gold",   glyph:"mountain",  n:"Three Hundred",   d:"Three hundred days with an entry",     p:()=>[AC.activeDays,300]},
+  {id:"r14",     cat:"Consistency", tier:"silver", glyph:"link",      n:"Unbroken",        d:"Fourteen days in a row without a gap", p:()=>[AC.activeRun,14]},
+  {id:"r30",     cat:"Consistency", tier:"gold",   glyph:"link",      n:"Chain of Thirty", d:"Thirty days in a row without a gap",   p:()=>[AC.activeRun,30]},
+  {id:"age180",  cat:"Consistency", tier:"silver", glyph:"hourglass", n:"Half a Year In",  d:"180 days since your first entry",      p:()=>[AC.ageDays,180]},
+  {id:"age365",  cat:"Consistency", tier:"master", glyph:"hourglass", n:"Anniversary",     d:"A full year since your first entry",   p:()=>[AC.ageDays,365]},
+
+  /* --- relative days --- */
+  {id:"p1",      cat:"Whole days", tier:"bronze", glyph:"star",     n:"Clean Sweep",     d:"A day with everything on pace at once", p:()=>[Math.min(AC.perfect,1),1]},
+  {id:"p5",      cat:"Whole days", tier:"silver", glyph:"stars",    n:"Five Sweeps",     d:"Five days with everything on pace",                       p:()=>[AC.perfect,5]},
+  {id:"p20",     cat:"Whole days", tier:"gold",   glyph:"sun",      n:"Twenty Bright",   d:"Twenty days with everything on pace",                     p:()=>[AC.perfect,20]},
+  {id:"strong30",cat:"Whole days", tier:"bronze", glyph:"leaf",     n:"Good Ground",     d:"Thirty days at 60% of pace or better",                  p:()=>[AC.strongDays,30]},
+  {id:"w80",     cat:"Whole days", tier:"silver", glyph:"pendulum", n:"Perfect Week",    d:"A seven-day stretch averaging 80% of pace",    p:()=>[Math.round(AC.week80*100),80]},
+  {id:"m1",      cat:"Whole days", tier:"silver", glyph:"calendar", n:"Strong Month",    d:"A calendar month averaging 50% of pace",         p:()=>[AC.month50,1]},
+  {id:"m3",      cat:"Whole days", tier:"gold",   glyph:"calendar", n:"Strong Quarter",  d:"Three months averaging 50% of pace",             p:()=>[AC.month50,3]},
+  {id:"m6",      cat:"Whole days", tier:"gold",   glyph:"trophy",   n:"Half Year Held",  d:"Six months averaging 50% of pace",               p:()=>[AC.month50,6]},
+  {id:"m12",     cat:"Whole days", tier:"master", glyph:"crown",    n:"The Long Game",   d:"Twelve months with 15+ active days each",p:()=>[AC.monthsSolid,12]},
+
+  /* --- money --- */
+  {id:"save100", cat:"Money", tier:"bronze", glyph:"coin",   n:"Seed Money",     d:"Put aside $100 in total",              p:()=>[Math.round(AC.saved),100]},
+  {id:"save1k",  cat:"Money", tier:"bronze", glyph:"coin",   n:"Four Figures",   d:"Put aside $1,000 in total",            p:()=>[Math.round(AC.saved),1000]},
+  {id:"save5k",  cat:"Money", tier:"silver", glyph:"vault",  n:"Five Grand",     d:"Put aside $5,000 in total",            p:()=>[Math.round(AC.saved),5000]},
+  {id:"save10k", cat:"Money", tier:"gold",   glyph:"gem",    n:"Five Figures",   d:"Put aside $10,000 in total",           p:()=>[Math.round(AC.saved),10000]},
+  {id:"goal1",   cat:"Money", tier:"silver", glyph:"flag",   n:"Goal Met",       d:"Finish a savings goal",                p:()=>[AC.goalsDone,1]},
+  {id:"goal3",   cat:"Money", tier:"gold",   glyph:"trophy", n:"Triple Crown",   d:"Finish three savings goals",           p:()=>[AC.goalsDone,3]},
+  {id:"dep8",    cat:"Money", tier:"silver", glyph:"pendulum",n:"Metronome",     d:"Deposit in eight straight weeks",      p:()=>[AC.depositWeekRun,8]},
+  {id:"dep26",   cat:"Money", tier:"gold",   glyph:"infinity",n:"Half-Year Habit",d:"Deposit in twenty-six straight weeks", p:()=>[AC.depositWeekRun,26]},
+  {id:"dep6m",   cat:"Money", tier:"silver", glyph:"rain",   n:"Six Months Wet", d:"Add money in six different months",    p:()=>[AC.depositMonths,6]},
+  {id:"green1",  cat:"Money", tier:"bronze", glyph:"scale",  n:"In the Black",   d:"End a month with income above bills",  p:()=>[AC.greenMonths,1]},
+  {id:"green3",  cat:"Money", tier:"silver", glyph:"scale",  n:"Three Green",    d:"Three months of income above bills",   p:()=>[AC.greenMonths,3]},
+  {id:"book50",  cat:"Money", tier:"bronze", glyph:"book",   n:"Bookkeeper",     d:"Record fifty money movements",         p:()=>[AC.ledgerCount,50]},
+
+  /* --- time --- */
+  {id:"h10",     cat:"Time", tier:"bronze", glyph:"clock",  n:"First Ten",      d:"Log ten hours",                        p:()=>[Math.round(AC.hours),10]},
+  {id:"h100",    cat:"Time", tier:"bronze", glyph:"clock",  n:"Hundred Hours",  d:"Log a hundred hours",                  p:()=>[Math.round(AC.hours),100]},
+  {id:"h500",    cat:"Time", tier:"silver", glyph:"bolt",   n:"Five Hundred",   d:"Log five hundred hours",               p:()=>[Math.round(AC.hours),500]},
+  {id:"h1000",   cat:"Time", tier:"gold",   glyph:"mountain",n:"Thousand Hours",d:"Log a thousand hours",                 p:()=>[Math.round(AC.hours),1000]},
+  {id:"hw1",     cat:"Time", tier:"bronze", glyph:"target", n:"Target Week",    d:"Hit a weekly hours target",            p:()=>[AC.hoursWeeks.length,1]},
+  {id:"hw4",     cat:"Time", tier:"silver", glyph:"target", n:"Four Straight",  d:"Hit a weekly hours target four weeks running", p:()=>[AC.hoursWeekRun,4]},
+  {id:"hw12",    cat:"Time", tier:"gold",   glyph:"shield", n:"A Quarter Held", d:"Hit a weekly hours target twelve weeks running", p:()=>[AC.hoursWeekRun,12]},
+  {id:"cnt100",  cat:"Time", tier:"bronze", glyph:"steps",  n:"Counted",        d:"Log a hundred daily counts",           p:()=>[AC.countEnts,100]},
+
+  /* --- sleep --- */
+  {id:"sl7",     cat:"Sleep", tier:"bronze", glyph:"moon",  n:"Night Watch",    d:"Log seven nights",                     p:()=>[AC.sleepNights,7]},
+  {id:"sl30",    cat:"Sleep", tier:"silver", glyph:"bed",   n:"Month of Nights",d:"Log thirty nights",                    p:()=>[AC.sleepNights,30]},
+  {id:"sl7t",    cat:"Sleep", tier:"silver", glyph:"leaf",  n:"Well Rested",    d:"Seven nights at or above your target", p:()=>[AC.sleepOnTarget,7]},
+  {id:"slsteady",cat:"Sleep", tier:"gold",   glyph:"pendulum",n:"Same Time Nightly",d:"Seven nights with bedtime inside a 30-minute band", p:()=>[AC.sleepSteady?1:0,1]},
+
+  /* --- reach: things worth starting --- */
+  {id:"own_sav", cat:"Worth starting", tier:"bronze", glyph:"vault", n:"Money Minded",  d:"Add a savings goal",           p:()=>[has("savings"),1]},
+  {id:"own_slp", cat:"Worth starting", tier:"bronze", glyph:"moon",  n:"Lights Out",    d:"Add a sleep tracker",          p:()=>[has("sleep"),1]},
+  {id:"own_led", cat:"Worth starting", tier:"bronze", glyph:"book",  n:"Ledger Open",   d:"Add an income and bills tracker", p:()=>[has("ledger"),1]},
+  {id:"own_hrs", cat:"Worth starting", tier:"bronze", glyph:"clock", n:"On the Clock",  d:"Add an hours tracker",         p:()=>[has("hours"),1]},
+  {id:"own_cnt", cat:"Worth starting", tier:"bronze", glyph:"key",   n:"By the Numbers",d:"Add a daily count tracker",    p:()=>[has("count"),1]}
+];
+
+function evaluate(){
+  buildAC();
+  return ACHIEVEMENTS.map(a=>{
+    const [cur, goal] = a.p();
+    return { ...a, cur:Math.max(0,cur), goal, earned: cur >= goal };
+  });
+}
+
+function syncAchievements(){
+  const list = evaluate();
+  const now = list.filter(a=>a.earned).map(a=>a.id);
+  if (S.unlocked === null || S.unlocked === undefined){ S.unlocked = now; persist(); return; }
+  const fresh = now.filter(id=>!S.unlocked.includes(id));
+  if (fresh.length){
+    S.unlocked = now; persist();
+    queueUnlock(fresh.map(id=>list.find(a=>a.id===id)).filter(Boolean));
+  } else if (now.length !== S.unlocked.length){ S.unlocked = now; persist(); }
+}
+
+let badgeFilter = "all";
+function renderBadges(){
+  const el = $("#panel-badges");
+  const list = evaluate();
+  const got = list.filter(a=>a.earned).length;
+  const shown = list.filter(a => badgeFilter === "all" ? true : badgeFilter === "earned" ? a.earned : !a.earned);
+  const cats = [...new Set(shown.map(a=>a.cat))];
+
+  const body = cats.map(cat=>{
+    const items = shown.filter(a=>a.cat===cat).map(a=>{
+      const pct = Math.min(1, a.goal ? a.cur/a.goal : 0);
+      const bar = a.goal > 1 && !a.earned
+        ? `<div class="bar"><i style="width:${(pct*100).toFixed(0)}%;background:${TIER[a.tier]}"></i></div>
+           <span class="cnt">${a.cur.toLocaleString()} of ${a.goal.toLocaleString()}</span>`
+        : `<span class="cnt ${a.earned?"done":""}">${a.earned ? "Earned" : "Not yet"}</span>`;
+      return `<div class="badge ${a.earned?"earned":"locked"}">
+        ${badgeSVG(a.glyph, a.tier, a.earned)}
+        <b>${esc(a.n)}</b><p>${esc(a.d)}</p>${bar}</div>`;
+    }).join("");
+    return `<div class="group-label">${cat}</div><div class="badge-grid">${items}</div>`;
+  }).join("");
+
+  el.innerHTML = `<div class="badge-head">
+      <h3>${got} of ${list.length} earned</h3>
+      <div class="row-sub">Every day is scored on your trailing seven-day pace against what you were tracking at the time, so a two-tracker day and a five-tracker day are judged the same way.</div>
+      <div class="meter"><i data-w="${(got/list.length*100).toFixed(0)}%"></i></div>
+      <div class="filters">
+        <button data-act="bfilter" data-f="all" aria-pressed="${badgeFilter==="all"}">All</button>
+        <button data-act="bfilter" data-f="earned" aria-pressed="${badgeFilter==="earned"}">Earned</button>
+        <button data-act="bfilter" data-f="locked" aria-pressed="${badgeFilter==="locked"}">Still to get</button>
+      </div>
+    </div>${body || `<div class="empty"><p>Nothing here under that filter.</p></div>`}`;
+  el.querySelectorAll(".meter i").forEach(m=>requestAnimationFrame(()=>m.style.width = m.dataset.w));
+}
+
+
+/* ===== 16. UNLOCK CELEBRATION ===== */
+let ukQueue = [];
+function queueUnlock(items){ ukQueue.push(...items); if (ukQueue.length === items.length) showNextUnlock(); }
+function showNextUnlock(){
+  const el = $("#unlock");
+  if (!ukQueue.length){ el.classList.remove("is-open"); return; }
+  const a = ukQueue[0], col = TIER[a.tier];
+  const rays = Array.from({length:14},(_,i)=>{
+    const ang = i*(360/14);
+    return `<line x1="60" y1="60" x2="60" y2="8" stroke="${col}" stroke-width="${i%2?1.5:3}" stroke-linecap="round" transform="rotate(${ang} 60 60)" opacity="${i%2?.5:.85}"/>`;
+  }).join("");
+  const sparks = Array.from({length:12},(_,i)=>{
+    const ang = (i/12)*Math.PI*2, dist = 90 + Math.random()*70;
+    return `<i class="uk-spark" style="background:${col};--dx:${(Math.cos(ang)*dist).toFixed(0)}px;--dy:${(Math.sin(ang)*dist).toFixed(0)}px;animation-delay:${(i*0.03).toFixed(2)}s"></i>`;
+  }).join("");
+  $("#uk-card").innerHTML = `
+    <div class="uk-medal">
+      <svg class="uk-rays" viewBox="0 0 120 120">${rays}</svg>
+      <div class="uk-ring" style="border:2px solid ${col}"></div>
+      ${badgeSVG(a.glyph, a.tier, true)}
+      ${sparks}
+    </div>
+    <div class="uk-tier" style="color:${col}">${TIER_NAME[a.tier]} unlocked</div>
+    <h2 class="uk-name">${esc(a.n)}</h2>
+    <p class="uk-desc">${esc(a.d)}</p>
+    <button class="uk-btn" data-act="uk-next">${ukQueue.length > 1 ? "Next badge" : "Nice"}</button>
+    ${ukQueue.length > 1 ? `<div class="uk-more">${ukQueue.length - 1} more waiting</div>` : ""}`;
+  el.classList.add("is-open");
+}
+function advanceUnlock(){ ukQueue.shift(); showNextUnlock(); }
+
+/* ===== 17. WEEKLY DIGEST (rules only, no network) ===== */
+function mean(a){ return a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0; }
+function weeklyDigest(){
+  buildAC();
+  const sc = AC.scored || [];
+  const now = mean(sc.slice(-7).map(x=>x[1]));
+  const prev = mean(sc.slice(-14,-7).map(x=>x[1]));
+  const lines = [];
+  const live = S.trackers.filter(t=>!t.archived);
+  const cards = live.map(t=>({ t, i:insightFor(t) }));
+
+  const worst = cards.filter(c=>c.i.tone !== "good").sort((a,b)=>b.i.gap - a.i.gap)[0];
+  if (worst) lines.push({ cls:"act", html:`<b>${esc(worst.t.name)}</b> needs attention first — ${worst.i.detail}` });
+
+  live.filter(t=>t.type==="savings" && !isGroup(t)).forEach(t=>{
+    const es = S.entries.filter(e=>e.trackerId===t.id).map(e=>e.date).sort();
+    if (!es.length) return;
+    const gap = daysBetween(es[es.length-1], today());
+    if (gap >= 14) lines.push({ cls:"act", html:`<b>${esc(t.name)}</b> hasn't been fed in ${plural(gap,"day")}. Even a small deposit restarts the rate.` });
+  });
+
+  const named = new Set(worst ? [worst.t.id] : []);
+  const maxed = cards.filter(c=>c.i.tone === "good" && c.i.gap === 0);
+  const starved = cards.filter(c=>c.i.gap > .5);
+  if (maxed.length && starved.length){
+    lines.push({ html:`<b>${esc(maxed[0].t.name)}</b> is comfortably ahead while <b>${esc(starved[0].t.name)}</b> is well behind. Shifting effort costs you little on the first and a lot on the second.` });
+    named.add(maxed[0].t.id); named.add(starved[0].t.id);
+  }
+
+  const best = cards.filter(c=>c.i.tone === "good" && !named.has(c.t.id)).sort((a,b)=>a.i.gap - b.i.gap)[0];
+  if (best) lines.push({ cls:"win", html:`<b>${esc(best.t.name)}</b> is holding — ${best.i.lead.toLowerCase()}.` });
+
+  if (prev > 0){
+    const d = now - prev;
+    if (Math.abs(d) > .04)
+      lines.push({ html: d > 0
+        ? `Overall pace is up ${Math.round(d*100)} points on last week.`
+        : `Overall pace is down ${Math.round(-d*100)} points on last week. Usually one tracker is doing that, not all of them.` });
+  }
+  return { now, prev, delta: now - prev, lines, spark: sc.slice(-14).map(x=>x[1]) };
+}
+
+function digestHTML(){
+  if (!S.trackers.filter(t=>!t.archived).length) return "";
+  const d = weeklyDigest();
+  const dir = d.prev > 0 ? (d.delta >= 0 ? "up" : "down") : "";
+  const arrow = d.prev > 0 ? (d.delta >= 0 ? "▲" : "▼") : "";
+  const bars = d.spark.map(v=>`<i style="height:${Math.max(4, v*34).toFixed(0)}px;opacity:${(.4+v*.6).toFixed(2)}"></i>`).join("");
+  return `<div class="digest">
+    <div class="row-sub" style="margin:0 0 6px">Seven-day pace across everything you track</div>
+    <div><span class="big">${Math.round(d.now*100)}%</span>${arrow?`<span class="delta ${dir}">${arrow} ${Math.abs(Math.round(d.delta*100))}</span>`:""}</div>
+    <div class="spark-row">${bars}</div>
+    <ul>${d.lines.map(l=>`<li class="${l.cls||""}">${l.html}</li>`).join("")}</ul>
+  </div>`;
+}
+
+/* ===== 18. SUPABASE SYNC (plain REST, no SDK) ===== */
+let syncBusy = false, syncTimer = null, syncMsg = "";
+const sbReady = () => !!(S.settings.sbUrl && S.settings.sbAnon && S.settings.sbToken);
+function jwtSub(tok){
+  try { return JSON.parse(atob(tok.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).sub; }
+  catch(e){ return null; }
+}
+async function sbCall(path, opts = {}, auth = true){
+  const url = S.settings.sbUrl.replace(/\/$/,"") + path;
+  const headers = Object.assign({ "apikey": S.settings.sbAnon, "Content-Type":"application/json" }, opts.headers||{});
+  if (auth && S.settings.sbToken) headers["Authorization"] = "Bearer " + S.settings.sbToken;
+  const res = await fetch(url, { ...opts, headers });
+  if (res.status === 401 && auth && S.settings.sbRefresh){
+    const ok = await sbRefresh();
+    if (ok) return sbCall(path, opts, auth);
+  }
+  return res;
+}
+async function sbRefresh(){
+  const res = await fetch(S.settings.sbUrl.replace(/\/$/,"") + "/auth/v1/token?grant_type=refresh_token", {
+    method:"POST", headers:{ "apikey":S.settings.sbAnon, "Content-Type":"application/json" },
+    body: JSON.stringify({ refresh_token: S.settings.sbRefresh })
+  });
+  if (!res.ok) return false;
+  const d = await res.json();
+  S.settings.sbToken = d.access_token; S.settings.sbRefresh = d.refresh_token;
+  Store.save(S); return true;
+}
+async function sbAuth(mode, email, password){
+  const path = mode === "signup" ? "/auth/v1/signup" : "/auth/v1/token?grant_type=password";
+  const res = await fetch(S.settings.sbUrl.replace(/\/$/,"") + path, {
+    method:"POST", headers:{ "apikey":S.settings.sbAnon, "Content-Type":"application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  const d = await res.json().catch(()=>({}));
+  if (!res.ok) return { ok:false, msg: d.msg || d.error_description || d.message || "Sign-in failed" };
+  if (!d.access_token) return { ok:false, msg:"Check your email to confirm the account, then sign in." };
+  S.settings.sbToken = d.access_token; S.settings.sbRefresh = d.refresh_token; S.settings.sbEmail = email;
+  Store.save(S);
+  return { ok:true };
+}
+
+function mergeStates(local, remote){
+  const tombs = [...(local.tombstones||[]), ...(remote.tombstones||[])];
+  const dead = new Set(tombs.map(t=>t.kind + ":" + t.id));
+  const pickNewer = remote.updatedAt > local.updatedAt ? remote : local;
+  const older = pickNewer === remote ? local : remote;
+  const mergeById = (key, kind) => {
+    const map = new Map();
+    (older[key]||[]).forEach(x => map.set(x.id, x));
+    (pickNewer[key]||[]).forEach(x => map.set(x.id, x));
+    return [...map.values()].filter(x => !dead.has(kind + ":" + x.id));
+  };
+  const trackers = mergeById("trackers","tracker");
+  const liveIds = new Set(trackers.map(t=>t.id));
+  return {
+    trackers,
+    entries: mergeById("entries","entry").filter(e => liveIds.has(e.trackerId)),
+    chat: (pickNewer.chat||[]).length >= (older.chat||[]).length ? (pickNewer.chat||[]) : (older.chat||[]),
+    unlocked: [...new Set([...(local.unlocked||[]), ...(remote.unlocked||[])])],
+    tombstones: tombs.slice(-800),
+    updatedAt: Math.max(local.updatedAt||0, remote.updatedAt||0),
+    settings: local.settings
+  };
+}
+
+function queueSync(){
+  if (!sbReady()) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(()=>syncNow(true), 4000);
+}
+
+async function syncNow(quiet){
+  if (!sbReady()){ if (!quiet) toast("Add your Supabase details in Settings first"); return; }
+  if (syncBusy) return;
+  syncBusy = true; syncMsg = "Syncing…"; refreshSyncBadge();
+  try {
+    const uid = jwtSub(S.settings.sbToken);
+    const get = await sbCall(`/rest/v1/baseline_state?select=data,updated_at&user_id=eq.${uid}`, { method:"GET" });
+    if (!get.ok) throw new Error("read failed (" + get.status + ")");
+    const rows = await get.json();
+    let merged = S;
+    if (rows.length && rows[0].data){
+      const remote = rows[0].data;
+      const before = JSON.stringify({t:S.trackers.length, e:S.entries.length});
+      merged = mergeStates(S, remote);
+      S.trackers = merged.trackers; S.entries = merged.entries;
+      S.chat = merged.chat; S.unlocked = merged.unlocked; S.tombstones = merged.tombstones;
+      S.updatedAt = merged.updatedAt;
+      const after = JSON.stringify({t:S.trackers.length, e:S.entries.length});
+      if (before !== after) renderAll();
+    }
+    const body = { user_id: uid, data: { trackers:S.trackers, entries:S.entries, chat:S.chat, unlocked:S.unlocked, tombstones:S.tombstones, updatedAt:S.updatedAt }, updated_at: new Date().toISOString() };
+    const put = await sbCall("/rest/v1/baseline_state?on_conflict=user_id", {
+      method:"POST", headers:{ "Prefer":"resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(body)
+    });
+    if (!put.ok) throw new Error("write failed (" + put.status + ")");
+    S.settings.lastSync = Date.now(); Store.save(S);
+    syncMsg = ""; if (!quiet) toast("Synced");
+  } catch(err){
+    syncMsg = err.message || "Sync failed";
+    if (!quiet) toast("Sync failed — " + syncMsg);
+  }
+  syncBusy = false; refreshSyncBadge();
+  if ($("#scrim").classList.contains("is-open") && $("#set-sync")) renderSyncBlock();
+}
+function refreshSyncBadge(){
+  const b = $("#btn-sync");
+  if (!b) return;
+  b.textContent = syncBusy ? "Syncing…" : "Sync";
+  b.style.opacity = sbReady() ? 1 : .45;
+}
+
+/* ===== 19. NOTIFICATIONS ===== */
+async function askNotify(){
+  if (!("Notification" in window)) return false;
+  const perm = await Notification.requestPermission();
+  return perm === "granted";
+}
+function notifyCheck(){
+  const st = S.settings;
+  if (!st.notifyOn || !("Notification" in window) || Notification.permission !== "granted") return;
+  const now = new Date();
+  const [h,m] = (st.notifyTime||"20:00").split(":").map(Number);
+  if (now.getHours()*60 + now.getMinutes() < h*60 + m) return;
+  if (st.lastNotify === today()) return;
+  st.lastNotify = today(); Store.save(S);
+  const d = weeklyDigest();
+  const first = d.lines.find(l=>l.cls === "act");
+  const body = first ? first.html.replace(/<[^>]+>/g,"") : `Seven-day pace is ${Math.round(d.now*100)}%.`;
+  try { new Notification("Baseline — today's check", { body, icon:"icon-192.png", badge:"icon-192.png", tag:"baseline-daily" }); } catch(e){}
+}
+
+/* ===== 20. SETTINGS SHEET ===== */
+function openSettings(){
+  const st = S.settings;
+  const themes = [["light","Light","#EDEFEE"],["dark","Dark","#101416"],["halloween","Halloween","#E4761B"],["auto","Match system","linear-gradient(90deg,#EDEFEE 50%,#101416 50%)"]];
+  $("#sheet").innerHTML = `
+    <h3>Settings</h3>
+    <div class="set-group">
+      <h4>Appearance</h4><p>Charts and badges recolour to match.</p>
+      <div class="theme-chips" id="set-theme">
+        ${themes.map(([k,l,c])=>`<button data-act="settheme" data-v="${k}" aria-pressed="${st.theme===k}"><i style="background:${c}"></i>${l}</button>`).join("")}
+      </div>
+    </div>
+    <div class="set-group">
+      <h4>Daily check-in</h4><p>A local reminder with the one thing most behind. On iPhone this needs Baseline added to your Home Screen.</p>
+      <div class="toggle-row">
+        <span>Remind me daily<small>${("Notification" in window) ? (Notification.permission === "denied" ? "Blocked in your browser settings" : "Fires while Baseline is open or in the background") : "Not supported in this browser"}</small></span>
+        <button class="sw" data-act="notify-toggle" aria-pressed="${!!st.notifyOn}" aria-label="Daily reminder"></button>
+      </div>
+      <div class="field"><label for="set-time">Reminder time</label><input id="set-time" type="time" value="${st.notifyTime||"20:00"}"></div>
+    </div>
+    <div class="set-group" id="set-sync"></div>
+    <div class="set-group">
+      <h4>AI chat in Updates</h4>
+      <p>Optional. Paste an Anthropic API key and the Updates tab gains a chat that can see your data. Everything else works without it — the pace maths is all local.</p>
+      <div class="field"><label for="set-key">Anthropic API key</label><input id="set-key" type="password" placeholder="sk-ant-…" value="${esc(st.apiKey||"")}"></div>
+      <div class="hint">Stored only on this device. Leave blank to keep Updates rules-only.</div>
+    </div>
+    <div class="set-group">
+      <h4>Your data</h4><p>A JSON file with every tracker, entry and badge.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="mini secondary" data-act="do-export">Export file</button>
+        <button class="mini secondary" data-act="do-import">Import file</button>
+        <button class="mini danger" data-act="do-reset">Erase everything</button>
+      </div>
+    </div>
+    <div class="sheet-actions"><div></div><div><button class="mini" data-act="set-save">Done</button></div></div>`;
+  renderSyncBlock();
+  $("#scrim").classList.add("is-open");
+}
+
+function renderSyncBlock(){
+  const host = $("#set-sync"); if (!host) return;
+  const st = S.settings;
+  const signedIn = !!st.sbToken;
+  const when = st.lastSync ? new Date(st.lastSync).toLocaleString() : "never";
+  const dotCol = syncBusy ? "var(--warn)" : (signedIn && !syncMsg) ? "var(--signal)" : syncMsg ? "var(--behind)" : "var(--line-strong)";
+  host.innerHTML = `
+    <h4>Sync across devices</h4>
+    <p>Your own free Supabase project holds one row of JSON. Local data stays the source of truth, so the app works offline and catches up later.</p>
+    <div class="field"><label for="sb-url">Project URL</label><input id="sb-url" placeholder="https://xxxx.supabase.co" value="${esc(st.sbUrl||"")}"></div>
+    <div class="field"><label for="sb-anon">Anon public key</label><input id="sb-anon" type="password" placeholder="eyJ…" value="${esc(st.sbAnon||"")}"></div>
+    ${signedIn ? `
+      <div class="sync-state"><span class="dot" style="background:${dotCol}"></span>Signed in as <b>${esc(st.sbEmail||"")}</b><br>Last sync: ${when}${syncMsg?`<br>${esc(syncMsg)}`:""}</div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="mini" data-act="sync-now">Sync now</button>
+        <button class="mini secondary" data-act="sign-out">Sign out</button>
+      </div>`
+    : `
+      <div class="field-pair">
+        <div class="field"><label for="sb-email">Email</label><input id="sb-email" type="email" value="${esc(st.sbEmail||"")}"></div>
+        <div class="field"><label for="sb-pass">Password</label><input id="sb-pass" type="password" placeholder="8+ characters"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="mini" data-act="sign-in">Sign in</button>
+        <button class="mini secondary" data-act="sign-up">Create account</button>
+      </div>
+      ${syncMsg?`<div class="sync-state" style="color:var(--behind)">${esc(syncMsg)}</div>`:""}`}`;
+}
+
+function saveSyncFields(){
+  const u = $("#sb-url"), a = $("#sb-anon");
+  if (u) S.settings.sbUrl = u.value.trim();
+  if (a) S.settings.sbAnon = a.value.trim();
+}
+
+/* ===== 14. EVENTS ===== */
+function toast(msg){
+  const el = $("#toast"); el.textContent = msg; el.classList.add("is-shown");
+  clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove("is-shown"), 1900);
+}
+const readNum = sel => { const el = document.querySelector(sel); const v = parseFloat(el?.value); return { el, v }; };
+
+document.addEventListener("click", e=>{
+  const tpl = e.target.closest("[data-tpl]");
+  if (tpl){
+    const rec = Object.assign({ id:uid(), createdAt:today(), unit:"", target:null, targetPeriod:"day", goalAmount:null, deadline:null, parentId:null }, TEMPLATES[tpl.dataset.tpl]);
+    S.trackers.push(rec); persist(); renderAll(); toast(`${rec.name} added`); return;
+  }
+  const cell = e.target.closest("[data-day]");
+  if (cell){ calSelected = cell.dataset.day; renderDays(); $("#day-detail")?.scrollIntoView({behavior:"smooth", block:"nearest"}); return; }
+
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id, t = id ? byId(id) : null;
+
+  if (act === "uk-next"){ advanceUnlock(); return; }
+  if (act === "open-settings"){ openSettings(); return; }
+  if (act === "settheme"){ applyTheme(b.dataset.v); openSettings(); return; }
+  if (act === "notify-toggle"){
+    (async ()=>{
+      if (!S.settings.notifyOn){
+        const ok = await askNotify();
+        if (!ok){ toast("Notifications are blocked in your browser settings"); return; }
+        S.settings.notifyOn = true;
+      } else S.settings.notifyOn = false;
+      Store.save(S); openSettings();
+    })();
+    return;
+  }
+  if (act === "do-export"){ doExport(); return; }
+  if (act === "do-import"){ $("#file-input").click(); return; }
+  if (act === "do-reset"){
+    if (!confirm("Erase every tracker, entry and badge on this device? This cannot be undone.")) return;
+    S.trackers = []; S.entries = []; S.chat = []; S.unlocked = []; S.tombstones = [];
+    persist(); closeSheet(); renderAll(); toast("Everything erased");
+    return;
+  }
+  if (act === "sign-in" || act === "sign-up"){
+    saveSyncFields();
+    const email = $("#sb-email")?.value.trim(), pass = $("#sb-pass")?.value;
+    if (!S.settings.sbUrl || !S.settings.sbAnon){ syncMsg = "Add your project URL and anon key first."; renderSyncBlock(); return; }
+    if (!email || !pass){ syncMsg = "Email and password required."; renderSyncBlock(); return; }
+    syncMsg = "Working…"; renderSyncBlock();
+    sbAuth(act === "sign-up" ? "signup" : "signin", email, pass).then(r=>{
+      syncMsg = r.ok ? "" : r.msg;
+      renderSyncBlock(); refreshSyncBadge();
+      if (r.ok) syncNow();
+    });
+    return;
+  }
+  if (act === "sign-out"){
+    S.settings.sbToken = ""; S.settings.sbRefresh = ""; syncMsg = "";
+    Store.save(S); renderSyncBlock(); refreshSyncBadge(); return;
+  }
+  if (act === "sync-now"){ saveSyncFields(); Store.save(S); syncNow(); return; }
+  if (act === "set-save"){
+    saveSyncFields();
+    const t = $("#set-time"), k = $("#set-key");
+    if (t) S.settings.notifyTime = t.value || "20:00";
+    if (k) S.settings.apiKey = k.value.trim();
+    Store.save(S); closeSheet(); renderAll(); toast("Settings saved");
+    return;
+  }
+  if (act === "bfilter"){ badgeFilter = b.dataset.f; renderBadges(); return; }
+  if (act === "month"){ calMonth = shiftMonth(calMonth, +b.dataset.n); calSelected = null; renderDays(); return; }
+  if (act === "toggle"){
+    aggValueOn(id, today()) > 0 ? removeEntry(id, today()) : setEntry(id, today(), 1);
+    renderTrack(); return;
+  }
+  if (act === "val-save"){
+    const { el, v } = readNum(`[data-role="val"][data-id="${id}"]`);
+    isNaN(v) ? removeEntry(id, today()) : setEntry(id, today(), v);
+    renderTrack(); toast(isNaN(v) ? "Entry cleared" : "Logged"); return;
+  }
+  if (act === "sleep-save" || act === "dsleep"){
+    const pre = act === "dsleep" ? "d" : "";
+    const date = act === "dsleep" ? calSelected : today();
+    const bed = document.querySelector(`[data-role="${pre}bed"][data-id="${id}"]`).value;
+    const wake = document.querySelector(`[data-role="${pre}wake"][data-id="${id}"]`).value;
+    if (!bed || !wake){ toast("Need both times"); return; }
+    const [bh,bm] = bed.split(":").map(Number), [wh,wm] = wake.split(":").map(Number);
+    let mins = (wh*60+wm)-(bh*60+bm); if (mins <= 0) mins += 1440;
+    setEntry(id, date, +(mins/60).toFixed(2), { bed, wake });
+    act === "dsleep" ? renderDays() : renderTrack();
+    toast(`${(mins/60).toFixed(1)}h logged`); return;
+  }
+  if (act === "save-add" || act === "ledger-in" || act === "ledger-out"){
+    const { el, v } = readNum(`[data-role="amt"][data-id="${id}"]`);
+    if (isNaN(v) || v === 0){ toast("Enter an amount"); return; }
+    if (act === "save-add"){
+      setEntry(id, today(), (ownEntryOn(id,today())?.value || 0) + v);
+      toast(`${money(v)} added`);
+    } else {
+      addLedgerEntry(id, act === "ledger-in" ? "in" : "out", v);
+      toast(act === "ledger-in" ? "Income logged" : "Expense logged");
+    }
+    el.value = ""; renderTrack(); return;
+  }
+  if (act === "addsub"){ openSheet(null, id); return; }
+  if (act === "edit"){ openSheet(t); return; }
+  if (act === "chart"){ t.chart = b.dataset.kind; persist(); renderProgress(); return; }
+
+  /* day-detail editing */
+  if (act === "dtoggle"){
+    const e2 = ownEntryOn(id, calSelected);
+    e2 && e2.value > 0 ? removeEntry(id, calSelected) : setEntry(id, calSelected, 1);
+    renderDays(); return;
+  }
+  if (act === "dval"){
+    const { v } = readNum(`[data-role="dval"][data-id="${id}"]`);
+    isNaN(v) ? removeEntry(id, calSelected) : setEntry(id, calSelected, v);
+    renderDays(); toast("Saved"); return;
+  }
+  if (act === "dclear"){ removeEntry(id, calSelected); renderDays(); toast("Entry cleared"); return; }
+  if (act === "dled-in" || act === "dled-out"){
+    const { el, v } = readNum(`[data-role="damt"][data-id="${id}"]`);
+    if (isNaN(v) || v === 0){ toast("Enter an amount"); return; }
+    addLedgerEntry(id, act === "dled-in" ? "in" : "out", v, calSelected);
+    renderDays(); toast("Logged"); return;
+  }
+  if (act === "del-entry"){ removeEntryById(b.dataset.eid); renderDays(); toast("Entry deleted"); return; }
+  if (act === "hist-del"){
+    removeEntryById(b.dataset.eid);
+    const tr = byId(b.dataset.tid); renderHistory(tr); renderTrack(); toast("Entry deleted"); return;
+  }
+});
+
+document.addEventListener("change", e=>{
+  const h = e.target.closest('[data-role="hval"]');
+  if (h){
+    const ent = S.entries.find(x=>x.id===h.dataset.eid);
+    const v = parseFloat(h.value);
+    if (ent && !isNaN(v)){ ent.value = v; persist(); renderTrack(); toast("Entry updated"); }
+  }
+});
+
+$("#scrim").addEventListener("click", e=>{ if (e.target.id === "scrim") closeSheet(); });
+document.addEventListener("keydown", e=>{
+  if (e.key === "Escape") closeSheet();
+  if ((e.key === "Enter" || e.key === " ") && e.target.dataset?.day){ e.preventDefault(); e.target.click(); }
+});
+$("#btn-new").addEventListener("click", ()=>openSheet(null));
+$("#btn-settings").addEventListener("click", openSettings);
+$("#btn-sync").addEventListener("click", ()=>syncNow());
+$("#unlock").addEventListener("click", e=>{ if (e.target.id === "unlock") advanceUnlock(); });
+
+/* theme */
+function resolveTheme(name){
+  if (name !== "auto") return name;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+function applyTheme(name){
+  S.settings.theme = name;
+  document.documentElement.setAttribute("data-theme", resolveTheme(name));
+  const bg = { light:"#EDEFEE", dark:"#101416", halloween:"#141010" }[resolveTheme(name)];
+  document.getElementById("meta-theme")?.setAttribute("content", bg);
+  persist();
+  renderAll();
+}
+window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", ()=>{
+  if (S.settings.theme === "auto") applyTheme("auto");
+});
+
+/* tabs */
+const TABS = ["track","days","badges","progress","insights"];
+let activeTab = "track";
+function setTab(name){
+  activeTab = name;
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===name));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("is-active", p.dataset.panel===name));
+  moveUnderline();
+  if (name === "days") renderDays();
+  if (name === "badges") renderBadges();
+  if (name === "progress") renderProgress();
+  if (name === "insights") renderInsights();
+  $("#btn-new").style.display = name === "track" ? "" : "none";
+}
+function moveUnderline(){
+  const btn = document.querySelector(`.tab[data-tab="${activeTab}"]`);
+  const u = $("#underline");
+  u.style.width = btn.offsetWidth + "px";
+  u.style.transform = `translateX(${btn.offsetLeft}px)`;
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click", ()=>setTab(b.dataset.tab)));
+window.addEventListener("resize", moveUnderline);
+
+/* swipe */
+let sx = 0, sy = 0;
+const area = $("#swipe-area");
+area.addEventListener("touchstart", e=>{ sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+area.addEventListener("touchend", e=>{
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) < 55 || Math.abs(dy) > Math.abs(dx)) return;
+  const i = TABS.indexOf(activeTab) + (dx < 0 ? 1 : -1);
+  if (i >= 0 && i < TABS.length) setTab(TABS[i]);
+}, {passive:true});
+
+/* export / import */
+function doExport(){
+  const blob = new Blob([JSON.stringify(S,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `baseline-${today()}.json`; a.click();
+  URL.revokeObjectURL(a.href); toast("Data exported");
+}
+$("#file-input").addEventListener("change", e=>{
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try {
+      const d = JSON.parse(r.result);
+      if (!d.trackers) throw new Error("bad");
+      S = { trackers:d.trackers||[], entries:d.entries||[], chat:d.chat||[], unlocked:d.unlocked||null, tombstones:d.tombstones||[], updatedAt:d.updatedAt||Date.now(), settings:{...DEFAULT_SETTINGS, ...(d.settings||{})} };
+      persist(); applyTheme(S.settings.theme||"light"); toast("Data imported");
+    } catch(err){ toast("That file isn't a Baseline export"); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+
+/* ===== 15. BOOT ===== */
+function renderAll(){
+  renderTrack();
+  syncAchievements();
+  if (activeTab === "days") renderDays();
+  if (activeTab === "badges") renderBadges();
+  if (activeTab === "progress") renderProgress();
+  if (activeTab === "insights") renderInsights();
+}
+(async function boot(){
+  $("#datestamp").textContent = prettyDate(today());
+  await Store.init();
+  const saved = await Store.load();
+  if (saved && saved.trackers){
+    S = { trackers:saved.trackers, entries:saved.entries||[], chat:saved.chat||[], unlocked:saved.unlocked||null, tombstones:saved.tombstones||[], updatedAt:saved.updatedAt||0, settings:{...DEFAULT_SETTINGS, ...(saved.settings||{})} };
+    S.trackers.forEach(t=>{ if (t.parentId === undefined) t.parentId = null; });
+  } else {
+    S.trackers = [Object.assign({ id:uid(), createdAt:today(), unit:"", goalAmount:null, deadline:null, parentId:null }, TEMPLATES.gym)];
+    persist();
+  }
+  document.documentElement.setAttribute("data-theme", resolveTheme(S.settings.theme || "light"));
+  const th = resolveTheme(S.settings.theme || "light");
+  document.documentElement.setAttribute("data-theme", th);
+  document.getElementById("meta-theme")?.setAttribute("content", {light:"#EDEFEE",dark:"#101416",halloween:"#141010"}[th]);
+  renderAll();
+  moveUnderline();
+  refreshSyncBadge();
+
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http"))
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+  if (sbReady()) syncNow(true);
+  window.addEventListener("online", ()=>{ if (sbReady()) syncNow(true); });
+  document.addEventListener("visibilitychange", ()=>{
+    if (document.visibilityState === "visible"){ notifyCheck(); if (sbReady()) syncNow(true); }
+  });
+  notifyCheck();
+  setInterval(notifyCheck, 60000);
+})();
+</script>
