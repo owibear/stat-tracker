@@ -13,21 +13,21 @@
   --paper:#EDEFEE; --surface:#FFFFFF; --ink:#141A1C; --muted:#6D767C;
   --line:#DBE0DE; --line-strong:#C3CAC7;
   --signal:#15624B; --warn:#A65C1C; --behind:#8E2F2F;
-  --signal-soft:#E4EEEA; --warn-soft:#F6EBDF;
+  --signal-soft:#E4EEEA; --warn-soft:#F6EBDF; --behind-soft:#F7E6E4;
   --shadow:rgba(20,26,28,.22);
 }
 [data-theme="dark"]{
   --paper:#101416; --surface:#191F22; --ink:#E7EDEA; --muted:#8B979C;
   --line:#242C30; --line-strong:#3A454A;
   --signal:#46A583; --warn:#D3924A; --behind:#D06B62;
-  --signal-soft:#17322A; --warn-soft:#33261A;
+  --signal-soft:#17322A; --warn-soft:#33261A; --behind-soft:#331E1C;
   --shadow:rgba(0,0,0,.55);
 }
 [data-theme="halloween"]{
   --paper:#141010; --surface:#1E1817; --ink:#F2E6D4; --muted:#A08B76;
   --line:#2B211D; --line-strong:#48342A;
   --signal:#E4761B; --warn:#8E5CC4; --behind:#C0392B;
-  --signal-soft:#33200F; --warn-soft:#241A33;
+  --signal-soft:#33200F; --warn-soft:#241A33; --behind-soft:#331A16;
   --shadow:rgba(0,0,0,.6);
 }
 *{box-sizing:border-box}
@@ -160,6 +160,30 @@ svg.plot{width:100%;height:auto;display:block;overflow:visible}
 .ledger-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13.5px;color:var(--muted)}
 .ledger-item b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
 
+
+/* ---- to-do + gym split ---- */
+.todo-list{margin-top:11px;display:flex;flex-direction:column;gap:5px}
+.todo-item{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;transition:background .2s,border-color .2s}
+.todo-item.late1{border-color:var(--warn);background:var(--warn-soft)}
+.todo-item.late2{border-color:var(--behind);background:var(--behind-soft)}
+.todo-item .tick{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--line-strong);background:var(--surface);flex:none;display:grid;place-items:center;padding:0}
+.todo-item .tick svg{width:11px;height:11px;fill:none;stroke:var(--line-strong);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.todo-item.late1 .tick{border-color:var(--warn)}
+.todo-item.late2 .tick{border-color:var(--behind)}
+.todo-item .txt{flex:1;min-width:0}
+.todo-age{font-size:11px;color:var(--muted);white-space:nowrap}
+.todo-item.late1 .todo-age{color:var(--warn)}
+.todo-item.late2 .todo-age{color:var(--behind)}
+.todo-x{background:none;border:0;color:var(--muted);font-size:15px;line-height:1;padding:0 2px}
+.todo-add{display:flex;gap:6px;margin-top:9px}
+.todo-add input{flex:1;min-width:110px;padding:7px 10px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);font-size:13.5px}
+.todo-done{font-size:13px;color:var(--muted);padding:5px 0;display:flex;align-items:center;gap:8px}
+.sess{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;border:1px solid var(--line-strong);color:var(--muted)}
+.sess.on{border-color:var(--signal);color:var(--signal)}
+.sched-row{display:grid;grid-template-columns:54px 1fr;gap:9px;align-items:center;margin-bottom:6px}
+.sched-row label{margin:0;font-size:13px}
+.sched-row select{padding:7px 9px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);width:100%}
+.sel-inline{padding:7px 9px;border:1px solid var(--line-strong);border-radius:7px;background:var(--surface);font-size:13px;max-width:132px}
 
 /* ---- badges ---- */
 .badge-head{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
@@ -357,9 +381,31 @@ const TYPES = {
   hours:   { label:"Hours logged",    unitDefault:"h",    periodDefault:"week",  charts:["bar","line","progress","pie"] },
   savings: { label:"Savings goals",   unitDefault:"$",    periodDefault:"total", charts:["progress","line","bar","pie"] },
   sleep:   { label:"Sleep",           unitDefault:"h",    periodDefault:"day",   charts:["line","bar","progress","pie"] },
-  ledger:  { label:"Income & bills",  unitDefault:"$",    periodDefault:"month", charts:["bar","pie","line","progress"] }
+  ledger:  { label:"Income & bills",  unitDefault:"$",    periodDefault:"month", charts:["bar","pie","line","progress"] },
+  split:   { label:"Gym split",       unitDefault:"",     periodDefault:"week",  charts:["progress","pie","bar","line"] },
+  todo:    { label:"To-do list",      unitDefault:"",     periodDefault:"day",   charts:["bar","line","progress","pie"] }
 };
-const ORDER = ["habit","count","hours","sleep","savings","ledger"];
+const ORDER = ["habit","split","todo","count","hours","sleep","savings","ledger"];
+const SESSIONS = ["Push","Pull","Legs","Upper","Lower","Full body","Cardio"];
+const DOWK = ["SU","MO","TU","WE","TH","FR","SA"];
+const DOW_ORDER = [["MO","Mon"],["TU","Tue"],["WE","Wed"],["TH","Thu"],["FR","Fri"],["SA","Sat"],["SU","Sun"]];
+const dowKey = d => DOWK[parse(d).getDay()];
+const sessionFor = (t,d) => (t.repeat === false ? "" : ((t.schedule||{})[dowKey(d)] || ""));
+const scheduledCount = t => Object.values(t.schedule||{}).filter(Boolean).length;
+function splitWeek(t){
+  const ws = weekStart(today()), out = { planned:0, done:0, missed:[], upcoming:[] };
+  for (let i=0;i<7;i++){
+    const d = addDays(ws,i), sess = sessionFor(t,d);
+    if (!sess) continue;
+    out.planned++;
+    if (aggValueOn(t.id,d) > 0) out.done++;
+    else if (d < today()) out.missed.push(sess);
+    else out.upcoming.push(sess);
+  }
+  return out;
+}
+const openItems = t => (t.items||[]).slice().sort((a,b)=> a.created < b.created ? -1 : 1);
+const itemAge = it => Math.max(0, daysBetween(it.created, today()));
 const COLORS = ["#15624B","#2A6FA8","#B23A3A","#C4761B","#6B4C9A","#1F8F86","#8C7A2E","#4A5A64"];
 const CHART_LABEL = { line:"Line", bar:"Bar", pie:"Split", progress:"Progress" };
 const MONEY_TYPES = ["savings","ledger"];
@@ -421,6 +467,25 @@ function removeEntryById(eid){
 }
 function addLedgerEntry(id, kind, amount, date, label){
   S.entries.push({ id:uid(), trackerId:id, date:date||today(), value:Math.abs(amount), kind, label:label||"" });
+  persist();
+}
+function addTodoItem(id, text){
+  const t = byId(id); if (!t) return;
+  t.items = t.items || [];
+  t.items.push({ id:uid(), text, created:today() });
+  persist();
+}
+function completeTodoItem(id, itemId){
+  const t = byId(id); if (!t) return;
+  const i = (t.items||[]).findIndex(x=>x.id===itemId); if (i < 0) return;
+  const it = t.items[i];
+  S.entries.push({ id:uid(), trackerId:id, date:today(), value:1, kind:"todo", label:it.text, opened:it.created });
+  t.items.splice(i,1);
+  persist();
+}
+function dropTodoItem(id, itemId){
+  const t = byId(id); if (!t) return;
+  t.items = (t.items||[]).filter(x=>x.id!==itemId);
   persist();
 }
 function deleteTracker(id){
@@ -488,7 +553,7 @@ function stats(t){
   out.avg7 = out.week7/7;
   out.doneToday = aggValueOn(t.id, today()) > 0;
 
-  if (t.type === "habit"){
+  if (t.type === "habit" || t.type === "split"){
     out.hits30 = out.series.filter(p=>p.value>0).length;
     out.hitsWeek = last7.filter(p=>p.value>0).length;
     let streak = 0;
@@ -500,12 +565,25 @@ function stats(t){
       if (i > 400) break;
     }
     out.streak = streak;
-    out.targetDays = out.target || 7;
+    out.targetDays = t.type === "split" ? (scheduledCount(t) || out.target || 3) : (out.target || 7);
+    out.plannedToday = t.type === "split" ? sessionFor(t, today()) : "";
+    out.weekPlan = t.type === "split" ? splitWeek(t) : null;
+    out.sessionToday = t.type === "split" ? (ownEntryOn(t.id, today())?.session || "") : "";
     out.isGroup = isGroup(t);
     out.sessions = out.week7;                       // counts each subsection separately
     out.scored = out.isGroup ? out.sessions : out.hitsWeek;
     out.unitWord = out.isGroup ? "sessions" : "days";
-    out.pct = Math.min(1, out.scored/out.targetDays);
+    out.pct = (t.type === "split" && out.weekPlan.planned)
+      ? Math.min(1, out.weekPlan.done/out.weekPlan.planned)
+      : Math.min(1, out.scored/out.targetDays);
+  } else if (t.type === "todo"){
+    const items = openItems(t);
+    out.open = items.length;
+    out.late = items.filter(i=>itemAge(i) >= 1).length;
+    out.oldest = items.length ? Math.max(...items.map(itemAge)) : 0;
+    out.doneTodayCount = aggValueOn(t.id, today());
+    out.doneToday = out.doneTodayCount > 0;
+    out.pct = (out.doneTodayCount + out.open) ? out.doneTodayCount/(out.doneTodayCount + out.open) : 0;
   } else if (t.type === "sleep"){
     const logged = last7.filter(p=>p.value>0);
     out.avgNight = logged.length ? logged.reduce((s,p)=>s+p.value,0)/logged.length : 0;
@@ -636,6 +714,14 @@ function renderChart(t, st){
     }
     if (t.type === "savings") return pieChart([{label:"Saved",value:st.saved,display:fm(st.saved),color},{label:"To go",value:st.remaining,display:fm(st.remaining),color:P.lineStrong}]);
     if (t.type === "ledger")  return pieChart([{label:"In",value:st.thisIn,display:fm(st.thisIn),color},{label:"Out",value:st.thisOut,display:fm(st.thisOut),color:P.lineStrong}]);
+    if (t.type === "split"){
+      const counts = {};
+      st.entries.filter(e=>e.value>0).slice(-90).forEach(e=>{ const k = e.session || "Session"; counts[k] = (counts[k]||0)+1; });
+      const keys = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+      if (!keys.length) return pieChart([{label:"No sessions yet",value:1,display:"0",color:P.lineStrong}]);
+      return pieChart(keys.map((k,i)=>({ label:k, value:counts[k], display:counts[k], color:themed(COLORS[i % COLORS.length]) })));
+    }
+    if (t.type === "todo")    return pieChart([{label:"Done (30d)",value:st.series.reduce((a,x)=>a+x.value,0),display:st.series.reduce((a,x)=>a+x.value,0),color},{label:"Still open",value:st.open,display:st.open,color:P.lineStrong}]);
     if (t.type === "habit")   return pieChart([{label:"Done",value:st.hits30,display:st.hits30,color},{label:"Missed",value:30-st.hits30,display:30-st.hits30,color:P.lineStrong}]);
     const hit = st.series.filter(p=>p.value>0).length;
     return pieChart([{label:"Logged",value:hit,display:hit,color},{label:"Blank",value:30-hit,display:30-hit,color:P.lineStrong}]);
@@ -647,6 +733,8 @@ function renderChart(t, st){
     return progressChart(p, `${fm(st.thisOut)} out of ${fm(st.thisIn)} in`, color);
   }
   if (t.type === "habit")  return progressChart(st.pct, `${st.scored} of ${st.targetDays} ${st.unitWord} this week`, color);
+  if (t.type === "split")  return progressChart(st.pct, `${st.weekPlan.done} of ${st.weekPlan.planned || st.targetDays} sessions this week`, color);
+  if (t.type === "todo")   return progressChart(st.pct, `${st.doneTodayCount} done today, ${st.open} still open`, color);
   if (t.type === "sleep")  return progressChart(st.pct, `${st.avgNight.toFixed(1)}h average vs ${st.target||8}h`, color);
   return progressChart(st.pct, `${fm(st.current)} of ${fm(st.target||0)}${t.unit||""} ${t.targetPeriod==="week"?"this week":"today"}`, color);
 }
@@ -705,6 +793,35 @@ function insightFor(t){
         ? `Only ${plural(left,"day")} left in the week, so this one can't be caught up. 30-day pace is ${rate.toFixed(1)} days a week.`
         : `${short} more needed with ${plural(left,"day")} left.`,
       gap: short/need
+    };
+  }
+
+  if (t.type === "split"){
+    const w = st.weekPlan;
+    const planned = { length: w.planned }, missed = w.missed, upcoming = w.upcoming, doneCount = w.done;
+    if (!planned.length)
+      return { tone:"watch", lead:`${st.hitsWeek} sessions this week`, detail:`No weekly plan set. Edit this tracker to assign a session to each day.`, gap:.4 };
+    if (!missed.length && !upcoming.length)
+      return { tone:"good", lead:"Week complete", detail:`All ${planned.length} planned sessions done${st.streak>1?`, ${plural(st.streak,"day")} streak running`:""}.`, gap:0 };
+    const bits = [];
+    if (upcoming.length) bits.push(`${upcoming.join(", ")} still to come`);
+    if (missed.length) bits.push(`${missed.join(", ")} missed`);
+    return {
+      tone: missed.length > upcoming.length ? "behind" : "watch",
+      lead: `${doneCount} of ${planned.length} sessions this week`,
+      detail: bits.join(". ") + ".",
+      gap: (missed.length + upcoming.length*.4) / planned.length
+    };
+  }
+
+  if (t.type === "todo"){
+    if (!st.open) return { tone:"good", lead:"Nothing open", detail:`${st.doneTodayCount ? `${plural(st.doneTodayCount,"item")} cleared today.` : "The list is empty."}`, gap:0 };
+    if (!st.late) return { tone:"good", lead:`${plural(st.open,"item")} open`, detail:`All added today, nothing overdue yet.`, gap:.15 };
+    return {
+      tone: st.oldest >= 2 ? "behind" : "watch",
+      lead: `${plural(st.late,"item")} overdue`,
+      detail: `${st.open} on the list, the oldest sitting ${plural(st.oldest,"day")}. Items keep ageing until they're ticked off.`,
+      gap: Math.min(1, st.oldest/5)
     };
   }
 
@@ -772,6 +889,14 @@ function controlsFor(t){
   const st = stats(t);
   if (t.type === "habit")
     return `<button class="check" data-act="toggle" data-id="${t.id}" aria-pressed="${st.doneToday}" aria-label="Mark ${esc(t.name)} done today"><svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg></button>`;
+  if (t.type === "split"){
+    const s2 = stats(t);
+    const cur = s2.sessionToday || s2.plannedToday || SESSIONS[0];
+    const opts = SESSIONS.map(x=>`<option value="${x}" ${x===cur?"selected":""}>${x}</option>`).join("");
+    return `<select class="sel-inline" data-role="sess" data-id="${t.id}" aria-label="Session type">${opts}</select>
+      <button class="check" data-act="split-toggle" data-id="${t.id}" aria-pressed="${s2.doneToday}" aria-label="Log today's session"><svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg></button>`;
+  }
+  if (t.type === "todo") return "";
   if (t.type === "sleep"){
     const e = ownEntryOn(t.id, today());
     return `<input class="time-input" type="time" data-role="bed" data-id="${t.id}" value="${e?.bed||""}" aria-label="Bed time">
@@ -798,6 +923,19 @@ function subtitleFor(t, group){
     return `This month ${money(st.thisIn)} in, ${money(st.thisOut)} out · average bills ${money(st.avgOut)}`;
   if (t.type === "habit")
     return `${st.scored}/${st.targetDays} ${st.unitWord} this week${st.streak>1?` · ${st.streak}-day streak`:""}`;
+  if (t.type === "split"){
+    const plan = st.plannedToday ? `${st.plannedToday} today` : "Rest day";
+    const logged = st.sessionToday ? ` · logged ${st.sessionToday}` : "";
+    const w = st.weekPlan;
+    const cnt = w.planned ? `${w.done}/${w.planned} sessions this week` : `${st.hitsWeek} sessions in 7 days`;
+    return `${plan}${logged} · ${cnt}${st.streak>1?` · ${st.streak}-day streak`:""}`;
+  }
+  if (t.type === "todo"){
+    const bits = [`${st.open} open`];
+    if (st.late) bits.push(`${st.late} late`);
+    if (st.doneTodayCount) bits.push(`${st.doneTodayCount} done today`);
+    return bits.join(" · ");
+  }
   if (t.type === "sleep")
     return `${st.avgNight.toFixed(1)}h average · target ${st.target||8}h`;
   const per = t.targetPeriod === "week" ? `${st.week7.toFixed(1)}/${st.target||"—"}${t.unit||""} this week` : `${aggValueOn(t.id,today())}/${st.target||"—"}${t.unit||""} today`;
@@ -807,7 +945,9 @@ function subtitleFor(t, group){
 function rowFor(t, group, child){
   const st = stats(t);
   const c = themed(t.color || COLORS[0]);
-  const done = t.type === "habit" ? st.doneToday : (st.pct >= 1 && ["savings","count","hours"].includes(t.type));
+  const done = (t.type === "habit" || t.type === "split") ? st.doneToday
+             : t.type === "todo" ? (st.open === 0 && st.doneTodayCount > 0)
+             : (st.pct >= 1 && ["savings","count","hours"].includes(t.type));
   const cls = ["row", group?"is-group":"", child?"is-child":"", done?"is-done":""].filter(Boolean).join(" ");
   const kidCount = childrenOf(t.id).length;
   const actions = group
@@ -817,10 +957,32 @@ function rowFor(t, group, child){
        ${child ? "" : `<button class="icon-btn" data-act="addsub" data-id="${t.id}" title="Add a subsection" aria-label="Add subsection">+</button>`}
        <button class="mini secondary" data-act="edit" data-id="${t.id}">Edit</button>`;
   const meter = (t.type !== "ledger") ? `<div class="meter"><i data-w="${(st.pct*100).toFixed(0)}%"></i></div>` : "";
+  let extra = "";
+  if (t.type === "todo"){
+    const rows = openItems(t).map(it=>{
+      const age = itemAge(it);
+      const cls = age >= 2 ? "late2" : age === 1 ? "late1" : "";
+      const tag = age >= 2 ? `${age} days late` : age === 1 ? "1 day late" : "today";
+      return `<div class="todo-item ${cls}">
+        <button class="tick" data-act="todo-done" data-id="${t.id}" data-item="${it.id}" aria-label="Complete item"><svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg></button>
+        <span class="txt">${esc(it.text)}</span>
+        <span class="todo-age">${tag}</span>
+        <button class="todo-x" data-act="todo-drop" data-id="${t.id}" data-item="${it.id}" aria-label="Remove without completing">&times;</button>
+      </div>`;
+    }).join("");
+    const doneRows = S.entries.filter(e=>e.trackerId===t.id && e.date===today())
+      .map(e=>`<div class="todo-done">&#10003; <s>${esc(e.label||"item")}</s></div>`).join("");
+    const emptyMsg = `<div class="row-sub" style="margin:0">Nothing open. Add the first thing below.</div>`;
+    extra = `<div class="todo-list">${rows || emptyMsg}${doneRows}
+      <div class="todo-add">
+        <input data-role="todo" data-id="${t.id}" placeholder="Add an item" aria-label="New to-do item">
+        <button class="mini" data-act="todo-add" data-id="${t.id}">Add</button>
+      </div></div>`;
+  }
   return `<div class="${cls}" data-id="${t.id}">
     <div>
       <div class="row-name"><span class="pip" style="background:${c}"></span>${esc(t.name)}${group?` <span class="row-sub" style="margin:0">${kidCount} subsections</span>`:""}</div>
-      <div class="row-sub">${subtitleFor(t, group)}</div>
+      <div class="row-sub">${subtitleFor(t, group)}</div>${extra}
     </div>
     <div class="row-actions">${actions}</div>
     ${meter}
@@ -870,6 +1032,8 @@ function headline(t, st){
   if (t.type === "savings") return `${money(st.saved)} saved${st.goal?` · ${Math.round(st.pct*100)}% of ${money(st.goal)}`:""}`;
   if (t.type === "ledger")  return `Average bills ${money(st.avgOut)} · net this month ${money(st.thisNet)}`;
   if (t.type === "habit")   return `${st.hits30} of the last 30 days${st.streak>1?` · ${st.streak}-day streak`:""}`;
+  if (t.type === "split")   return `${st.hits30} sessions in 30 days${st.streak>1?` · ${st.streak}-day streak`:""}`;
+  if (t.type === "todo")    return `${st.series.reduce((a,x)=>a+x.value,0)} items cleared in 30 days · ${st.open} open`;
   if (t.type === "sleep")   return `${st.avgNight.toFixed(1)}h nightly average`;
   return `7-day average ${st.avg7.toFixed(1)}${t.unit||""}`;
 }
@@ -997,7 +1161,23 @@ function renderDayDetail(){
           <button class="mini secondary" data-act="dled-out" data-id="${t.id}">Out</button>
         </div></div>`;
     }
+    if (t.type === "todo"){
+      const items = S.entries.filter(e=>e.trackerId===t.id && e.date===d);
+      const list = items.length
+        ? items.map(e=>`<div class="ledger-item"><b>&#10003;</b> ${esc(e.label||"item")}<button class="icon-btn" data-act="del-entry" data-eid="${e.id}" aria-label="Delete">&times;</button></div>`).join("")
+        : `<div class="ledger-item">Nothing completed</div>`;
+      return `<div class="edit-line"><div>${name}${list}</div><div class="row-actions"></div></div>`;
+    }
     const e = ownEntryOn(t.id, d);
+    if (t.type === "split"){
+      const cur = e?.session || sessionFor(t, d) || SESSIONS[0];
+      const opts = SESSIONS.map(x=>`<option value="${x}" ${x===cur?"selected":""}>${x}</option>`).join("");
+      return `<div class="edit-line">${name}<div class="row-actions">
+        <select class="sel-inline" data-role="dsess" data-id="${t.id}">${opts}</select>
+        <button class="mini" data-act="dsplit" data-id="${t.id}">${e?"Update":"Log"}</button>
+        ${e?`<button class="icon-btn" data-act="dclear" data-id="${t.id}" aria-label="Clear">&times;</button>`:""}
+      </div></div>`;
+    }
     if (t.type === "habit"){
       return `<div class="edit-line">${name}<div class="row-actions">
         <button class="check" data-act="dtoggle" data-id="${t.id}" aria-pressed="${!!(e&&e.value>0)}" aria-label="Toggle ${esc(t.name)}"><svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg></button></div></div>`;
@@ -1066,7 +1246,7 @@ function dataSnapshot(){
       subsections: childrenOf(t.id).map(k=>k.name), target:effTarget(t), status:i.tone, summary:i.lead+" — "+i.detail };
     if (t.type === "savings") Object.assign(base,{ saved:Math.round(st.saved), goal:st.goal, perWeek:Math.round(st.perWeek), deadline:t.deadline||null });
     if (t.type === "ledger")  Object.assign(base,{ avgMonthlyIn:Math.round(st.avgIn), avgMonthlyOut:Math.round(st.avgOut), netThisMonth:Math.round(st.thisNet) });
-    if (["habit","count","hours","sleep"].includes(t.type)) Object.assign(base,{ last7:st.series.slice(-7).map(p=>+p.value.toFixed(2)), avg7:+st.avg7.toFixed(2) });
+    if (["habit","split","todo","count","hours","sleep"].includes(t.type)) Object.assign(base,{ last7:st.series.slice(-7).map(p=>+p.value.toFixed(2)), avg7:+st.avg7.toFixed(2) });
     return base;
   });
 }
@@ -1112,12 +1292,13 @@ Today is ${today()}. Answer using these numbers. Be concrete, cite the actual fi
 }
 
 /* ===== 13. TRACKER SHEET ===== */
-let draftColor = COLORS[0];
+let draftColor = COLORS[0], draftRepeat = true;
 
 function openSheet(existing, presetParentId){
   const parent = presetParentId ? byId(presetParentId) : (existing?.parentId ? byId(existing.parentId) : null);
   const t = existing || { type: parent ? parent.type : "habit", targetPeriod: parent ? parent.targetPeriod : "week", color: COLORS[(S.trackers.length)%COLORS.length], chart:"progress" };
   draftColor = t.color || COLORS[0];
+  draftRepeat = t.repeat !== false;
   const lockType = !!parent;
   const typeOpts = Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${k===t.type?"selected":""}>${v.label.replace(/s$/,"")}</option>`).join("");
   const swatches = COLORS.map(c=>`<button class="swatch" style="background:${c}" data-color="${c}" aria-pressed="${c===draftColor}" aria-label="Colour"></button>`).join("");
@@ -1161,6 +1342,21 @@ function openSheet(existing, presetParentId){
         ${parent?"":`<div class="hint">Leave blank on a parent goal and it adds up its subsections instead.</div>`}`;
     else if (type === "sleep") f = `<div class="field"><label for="f-target">Hours you want per night</label><input id="f-target" type="number" step="0.5" value="${t.target||8}"></div>`;
     else if (type === "ledger") f = `<div class="hint">Log amounts with the In and Out buttons on the Trackers tab.</div>`;
+    else if (type === "split"){
+      const sch = t.schedule || {};
+      f = `<div class="field"><label>Weekly plan</label>
+        ${DOW_ORDER.map(([k,lbl])=>`<div class="sched-row"><label for="sch-${k}">${lbl}</label>
+          <select id="sch-${k}" data-sched="${k}">
+            <option value="">Rest</option>
+            ${SESSIONS.map(x=>`<option value="${x}" ${sch[k]===x?"selected":""}>${x}</option>`).join("")}
+          </select></div>`).join("")}
+      </div>
+      <div class="toggle-row" style="padding:4px 0 10px">
+        <span>Repeat every week<small>Keeps this plan running indefinitely. Turn off to log sessions freehand.</small></span>
+        <button class="sw" type="button" data-act="rep-toggle" aria-pressed="${t.repeat !== false}" aria-label="Repeat weekly"></button>
+      </div>`;
+    }
+    else if (type === "todo") f = `<div class="hint">Add items on the Trackers tab. Anything unfinished carries to the next day and turns amber after one day, red after two. Completed items are stamped on that day in the Days tab.</div>`;
     else f = `<div class="field-pair">
         <div class="field"><label for="f-target">Target</label><input id="f-target" type="number" step="0.5" value="${t.target||""}" placeholder="40"></div>
         <div class="field"><label for="f-period">Per</label><select id="f-period"><option value="day" ${t.targetPeriod==="day"?"selected":""}>Day</option><option value="week" ${t.targetPeriod==="week"?"selected":""}>Week</option></select></div></div>
@@ -1197,6 +1393,13 @@ function openSheet(existing, presetParentId){
     rec.unit = $("#f-unit")?.value ?? TYPES[type].unitDefault;
     rec.goalAmount = +($("#f-goal")?.value) || null;
     rec.deadline = $("#f-deadline")?.value || null;
+    if (type === "split"){
+      const sch = {};
+      document.querySelectorAll("[data-sched]").forEach(el=>{ if (el.value) sch[el.dataset.sched] = el.value; });
+      rec.schedule = sch;
+      rec.repeat = draftRepeat;
+    }
+    if (type === "todo") rec.items = rec.items || [];
     if (!TYPES[type].charts.includes(rec.chart)) rec.chart = TYPES[type].charts[0];
     if (!existing) S.trackers.push(rec);
     persist(); closeSheet(); renderAll();
@@ -1335,6 +1538,8 @@ function buildAC(){
   leaves.forEach(t=>{
     const tg = effTarget(t);
     if (t.type === "habit")  weeklyExp.set(t.id, tg || 7);
+    else if (t.type === "split") weeklyExp.set(t.id, scheduledCount(t) || tg || 3);
+    else if (t.type === "todo")  weeklyExp.set(t.id, 3);
     else if (t.type === "sleep") weeklyExp.set(t.id, (tg || 8) * 6.5);
     else if (t.type === "count" || t.type === "hours")
       weeklyExp.set(t.id, tg ? (t.targetPeriod === "week" ? tg : tg*7) : null);
@@ -1450,7 +1655,15 @@ function buildAC(){
     sleepOnTarget: sleepOnTarget.length,
     sleepSteady,
     ledgerCount: ledgerEnts.length,
-    greenMonths
+    greenMonths,
+    splitSessions: entsOf("split").filter(e=>e.value>0).length,
+    splitTypes: new Set(entsOf("split").filter(e=>e.value>0).map(e=>e.session).filter(Boolean)).size,
+    todoDone: entsOf("todo").length,
+    todoClear: (()=>{
+      const tl = byType("todo");
+      if (!tl.length) return 0;
+      return tl.every(t => openItems(t).length === 0) && entsOf("todo").some(e=>e.date===today()) ? 1 : 0;
+    })()
   };
   return AC;
 }
@@ -1523,12 +1736,24 @@ const ACHIEVEMENTS = [
   {id:"sl7t",    cat:"Sleep", tier:"silver", glyph:"leaf",  n:"Well Rested",    d:"Seven nights at or above your target", p:()=>[AC.sleepOnTarget,7]},
   {id:"slsteady",cat:"Sleep", tier:"gold",   glyph:"pendulum",n:"Same Time Nightly",d:"Seven nights with bedtime inside a 30-minute band", p:()=>[AC.sleepSteady?1:0,1]},
 
+  /* --- gym split + to-do --- */
+  {id:"sp1",   cat:"Training & tasks", tier:"bronze", glyph:"bolt",     n:"First Session",  d:"Log a session on a gym split",         p:()=>[Math.min(AC.splitSessions,1),1]},
+  {id:"sp3",   cat:"Training & tasks", tier:"bronze", glyph:"layers",   n:"Well Rounded",   d:"Log three different session types",    p:()=>[AC.splitTypes,3]},
+  {id:"sp5",   cat:"Training & tasks", tier:"silver", glyph:"compass",  n:"Full Programme", d:"Log five different session types",     p:()=>[AC.splitTypes,5]},
+  {id:"sp25",  cat:"Training & tasks", tier:"silver", glyph:"steps",    n:"Twenty-Five In", d:"Twenty-five sessions logged",          p:()=>[AC.splitSessions,25]},
+  {id:"sp100", cat:"Training & tasks", tier:"gold",   glyph:"mountain", n:"Hundred Sessions",d:"A hundred sessions logged",           p:()=>[AC.splitSessions,100]},
+  {id:"td1",   cat:"Training & tasks", tier:"bronze", glyph:"pen",      n:"First Task",     d:"Tick off your first to-do item",       p:()=>[Math.min(AC.todoDone,1),1]},
+  {id:"td50",  cat:"Training & tasks", tier:"silver", glyph:"book",     n:"Fifty Done",     d:"Clear fifty to-do items",              p:()=>[AC.todoDone,50]},
+  {id:"tdz",   cat:"Training & tasks", tier:"silver", glyph:"leaf",     n:"Clean Slate",    d:"End a day with nothing left open",     p:()=>[AC.todoClear,1]},
+
   /* --- reach: things worth starting --- */
   {id:"own_sav", cat:"Worth starting", tier:"bronze", glyph:"vault", n:"Money Minded",  d:"Add a savings goal",           p:()=>[has("savings"),1]},
   {id:"own_slp", cat:"Worth starting", tier:"bronze", glyph:"moon",  n:"Lights Out",    d:"Add a sleep tracker",          p:()=>[has("sleep"),1]},
   {id:"own_led", cat:"Worth starting", tier:"bronze", glyph:"book",  n:"Ledger Open",   d:"Add an income and bills tracker", p:()=>[has("ledger"),1]},
   {id:"own_hrs", cat:"Worth starting", tier:"bronze", glyph:"clock", n:"On the Clock",  d:"Add an hours tracker",         p:()=>[has("hours"),1]},
-  {id:"own_cnt", cat:"Worth starting", tier:"bronze", glyph:"key",   n:"By the Numbers",d:"Add a daily count tracker",    p:()=>[has("count"),1]}
+  {id:"own_cnt", cat:"Worth starting", tier:"bronze", glyph:"key",   n:"By the Numbers",d:"Add a daily count tracker",    p:()=>[has("count"),1]},
+  {id:"own_spl", cat:"Worth starting", tier:"bronze", glyph:"bolt",  n:"Programme Set", d:"Add a gym split with a weekly plan", p:()=>[has("split"),1]},
+  {id:"own_td",  cat:"Worth starting", tier:"bronze", glyph:"flag",  n:"List Started",  d:"Add a to-do list",             p:()=>[has("todo"),1]}
 ];
 
 function evaluate(){
@@ -1900,6 +2125,34 @@ document.addEventListener("click", e=>{
   const b = e.target.closest("[data-act]"); if (!b) return;
   const act = b.dataset.act, id = b.dataset.id, t = id ? byId(id) : null;
 
+  if (act === "rep-toggle"){
+    draftRepeat = !draftRepeat;
+    b.setAttribute("aria-pressed", draftRepeat);
+    return;
+  }
+  if (act === "split-toggle"){
+    if (aggValueOn(id, today()) > 0) removeEntry(id, today());
+    else {
+      const sel = document.querySelector(`[data-role="sess"][data-id="${id}"]`);
+      setEntry(id, today(), 1, { session: sel ? sel.value : (sessionFor(t, today()) || "Session") });
+    }
+    renderTrack(); return;
+  }
+  if (act === "dsplit"){
+    const sel = document.querySelector(`[data-role="dsess"][data-id="${id}"]`);
+    setEntry(id, calSelected, 1, { session: sel ? sel.value : "Session" });
+    renderDays(); toast("Session logged"); return;
+  }
+  if (act === "todo-add"){
+    const inp = document.querySelector(`[data-role="todo"][data-id="${id}"]`);
+    const text = (inp?.value || "").trim();
+    if (!text){ inp?.focus(); return; }
+    addTodoItem(id, text); inp.value = ""; renderTrack();
+    document.querySelector(`[data-role="todo"][data-id="${id}"]`)?.focus();
+    return;
+  }
+  if (act === "todo-done"){ completeTodoItem(id, b.dataset.item); renderTrack(); toast("Ticked off"); return; }
+  if (act === "todo-drop"){ dropTodoItem(id, b.dataset.item); renderTrack(); return; }
   if (act === "uk-next"){ advanceUnlock(); return; }
   if (act === "open-settings"){ openSettings(); return; }
   if (act === "settheme"){ applyTheme(b.dataset.v); openSettings(); return; }
@@ -2023,6 +2276,12 @@ document.addEventListener("change", e=>{
 
 $("#scrim").addEventListener("click", e=>{ if (e.target.id === "scrim") closeSheet(); });
 document.addEventListener("keydown", e=>{
+  if (e.key === "Enter" && e.target.dataset?.role === "todo"){
+    e.preventDefault();
+    const id = e.target.dataset.id, text = e.target.value.trim();
+    if (text){ addTodoItem(id, text); renderTrack(); document.querySelector(`[data-role="todo"][data-id="${id}"]`)?.focus(); }
+    return;
+  }
   if (e.key === "Escape") closeSheet();
   if ((e.key === "Enter" || e.key === " ") && e.target.dataset?.day){ e.preventDefault(); e.target.click(); }
 });

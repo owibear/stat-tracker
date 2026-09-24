@@ -1,5 +1,5 @@
 /* Baseline service worker — cache-first shell so the app opens offline. */
-const CACHE = "baseline-v1";
+const CACHE = "baseline-v2";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
